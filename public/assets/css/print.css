@@ -1,0 +1,13 @@
+/* Print Styles */
+@media print {
+    body { background: #fff !important; font-size: 12px; }
+    .sidebar, .topbar, .sidebar-overlay, .btn-menu-toggle, .no-print { display: none !important; }
+    .main-content { margin-left: 0 !important; }
+    .content-area { padding: 0 !important; }
+    .card { border: none !important; box-shadow: none !important; }
+    .invoice-page { padding: 0; }
+    .invoice-actions { display: none !important; }
+    a { color: #000 !important; text-decoration: none !important; }
+    table { page-break-inside: auto; }
+    tr { page-break-inside: avoid; }
+}
