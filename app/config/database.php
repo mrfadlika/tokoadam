@@ -16,6 +16,7 @@ define('DB_CHARSET', 'utf8mb4');
  */
 function getDB() {
     static $pdo = null;
+    static $schemaChecked = false;
     
     if ($pdo === null) {
         $dsn = "mysql:host=" . DB_HOST . ";port=" . DB_PORT . ";dbname=" . DB_NAME . ";charset=" . DB_CHARSET;
@@ -39,6 +40,49 @@ function getDB() {
             </div>');
         }
     }
+
+    if (!$schemaChecked) {
+        ensureRuntimeSchema($pdo);
+        $schemaChecked = true;
+    }
     
     return $pdo;
+}
+
+function ensureRuntimeSchema(PDO $pdo): void {
+    if (tableExists($pdo, 'customers') && !columnExists($pdo, 'customers', 'tipe')) {
+        $pdo->exec("ALTER TABLE customers ADD COLUMN tipe ENUM('customer', 'supplier') NOT NULL DEFAULT 'customer' AFTER id");
+    }
+
+    if (tableExists($pdo, 'stock_batches')) {
+        if (!columnExists($pdo, 'stock_batches', 'supplier_id')) {
+            $pdo->exec("ALTER TABLE stock_batches ADD COLUMN supplier_id INT NULL AFTER product_id");
+        }
+        if (!columnExists($pdo, 'stock_batches', 'nomor_nota')) {
+            $pdo->exec("ALTER TABLE stock_batches ADD COLUMN nomor_nota VARCHAR(100) NULL AFTER harga_modal");
+        }
+        if (!columnExists($pdo, 'stock_batches', 'nota_file')) {
+            $pdo->exec("ALTER TABLE stock_batches ADD COLUMN nota_file VARCHAR(255) NULL AFTER nomor_nota");
+        }
+    }
+}
+
+function tableExists(PDO $pdo, string $table): bool {
+    $stmt = $pdo->prepare(
+        "SELECT COUNT(*)
+         FROM information_schema.TABLES
+         WHERE TABLE_SCHEMA = ? AND TABLE_NAME = ?"
+    );
+    $stmt->execute([DB_NAME, $table]);
+    return (int)$stmt->fetchColumn() > 0;
+}
+
+function columnExists(PDO $pdo, string $table, string $column): bool {
+    $stmt = $pdo->prepare(
+        "SELECT COUNT(*)
+         FROM information_schema.COLUMNS
+         WHERE TABLE_SCHEMA = ? AND TABLE_NAME = ? AND COLUMN_NAME = ?"
+    );
+    $stmt->execute([DB_NAME, $table, $column]);
+    return (int)$stmt->fetchColumn() > 0;
 }

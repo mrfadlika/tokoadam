@@ -59,7 +59,7 @@ $icon = static function (string $name): string {
                 </a>
                 <a href="<?= BASE_URL ?>/index.php?page=customers" class="nav-item <?= $currentPage === 'customers' ? 'active' : '' ?>">
                     <span class="nav-icon"><?= $icon('customers') ?></span>
-                    <span>Toko / Pelanggan</span>
+                    <span>Pelanggan & Supplier</span>
                 </a>
 
                 <div class="nav-section">Transaksi</div>
@@ -77,15 +77,15 @@ $icon = static function (string $name): string {
                 </a>
 
                 <div class="nav-section">Laporan</div>
-                <a href="<?= BASE_URL ?>/index.php?page=reports" class="nav-item <?= $currentPage === 'reports' && $action !== 'stock' && $action !== 'financial' ? 'active' : '' ?>">
+                <a href="<?= BASE_URL ?>/index.php?page=reports&action=sales" class="nav-item <?= $currentPage === 'reports' && ($action === 'sales' || $action === '') ? 'active' : '' ?>">
                     <span class="nav-icon"><?= $icon('report') ?></span>
                     <span>Lap. Penjualan</span>
                 </a>
-                <a href="<?= BASE_URL ?>/index.php?page=reports&action=stock" class="nav-item <?= $action === 'stock' ? 'active' : '' ?>">
+                <a href="<?= BASE_URL ?>/index.php?page=reports&action=stock" class="nav-item <?= $currentPage === 'reports' && $action === 'stock' ? 'active' : '' ?>">
                     <span class="nav-icon"><?= $icon('analytics') ?></span>
                     <span>Lap. Stok</span>
                 </a>
-                <a href="<?= BASE_URL ?>/index.php?page=reports&action=financial" class="nav-item <?= $action === 'financial' ? 'active' : '' ?>">
+                <a href="<?= BASE_URL ?>/index.php?page=reports&action=financial" class="nav-item <?= $currentPage === 'reports' && $action === 'financial' ? 'active' : '' ?>">
                     <span class="nav-icon"><?= $icon('finance') ?></span>
                     <span>Lap. Keuangan</span>
                 </a>

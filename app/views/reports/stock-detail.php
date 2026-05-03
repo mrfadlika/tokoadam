@@ -255,20 +255,40 @@ if (!empty($chartPoints)) {
     <div class="card-header">
         <div>
             <h3>Riwayat Barang Masuk dan Harga Modal</h3>
-            <p class="section-note">Di sini terlihat kapan batch masuk, berapa yang sudah keluar, dan sisa yang masih tertahan di stok.</p>
+            <p class="section-note">Di sini terlihat kapan batch masuk, supplier asal, nomor nota, serta sisa batch yang masih tertahan di stok.</p>
         </div>
     </div>
     <div class="table-responsive">
         <table>
             <thead>
-                <tr><th>Tanggal</th><th class="text-right">Qty Masuk</th><th class="text-right">Qty Keluar</th><th class="text-right">Sisa</th><th class="text-right">Harga Modal</th><th>Status</th><th>Keterangan</th><th>Oleh</th></tr>
+                <tr><th>Tanggal</th><th>Supplier</th><th>No. Nota</th><th>Arsip Nota</th><th class="text-right">Qty Masuk</th><th class="text-right">Qty Keluar</th><th class="text-right">Sisa</th><th class="text-right">Harga Modal</th><th>Status</th><th>Keterangan</th><th>Oleh</th></tr>
             </thead>
             <tbody>
                 <?php if (empty($stockHistory)): ?>
-                    <tr><td colspan="8"><div class="empty-state"><div class="empty-icon">IN</div><h4>Belum ada histori barang masuk</h4></div></td></tr>
+                    <tr><td colspan="11"><div class="empty-state"><div class="empty-icon">IN</div><h4>Belum ada histori barang masuk</h4></div></td></tr>
                 <?php else: foreach ($stockHistory as $row): ?>
                     <tr>
                         <td class="text-nowrap"><?= formatDate($row['tanggal_masuk']) ?></td>
+                        <td><?= htmlspecialchars($row['supplier_name'] ?? '-') ?></td>
+                        <td><?= htmlspecialchars($row['nomor_nota'] ?? '-') ?></td>
+                        <td>
+                            <?php if (!empty($row['nota_file'])): ?>
+                                <?php
+                                $notaUrl = BASE_URL . '/public/uploads/stock-notes/' . rawurlencode($row['nota_file']);
+                                $notaExt = strtolower(pathinfo($row['nota_file'], PATHINFO_EXTENSION));
+                                $isImageNota = in_array($notaExt, ['jpg', 'jpeg', 'png', 'webp'], true);
+                                ?>
+                                <?php if ($isImageNota): ?>
+                                    <a href="<?= htmlspecialchars($notaUrl) ?>" target="_blank" rel="noopener" title="Buka foto nota">
+                                        <img src="<?= htmlspecialchars($notaUrl) ?>" alt="Foto nota" style="width:54px;height:54px;object-fit:cover;border-radius:10px;border:1px solid var(--border)">
+                                    </a>
+                                <?php else: ?>
+                                    <a href="<?= htmlspecialchars($notaUrl) ?>" target="_blank" rel="noopener" class="btn btn-sm btn-outline">Buka Arsip</a>
+                                <?php endif; ?>
+                            <?php else: ?>
+                                <span class="text-muted">-</span>
+                            <?php endif; ?>
+                        </td>
                         <td class="text-right"><?= number_format($row['qty_masuk']) ?> <?= htmlspecialchars($summary['satuan']) ?></td>
                         <td class="text-right"><?= number_format($row['qty_keluar']) ?></td>
                         <td class="text-right fw-bold"><?= number_format($row['qty_sisa']) ?></td>
@@ -301,7 +321,7 @@ if (!empty($chartPoints)) {
     <div class="table-responsive">
         <table>
             <thead>
-                <tr><th>Tanggal Jual</th><th>Nota</th><th>Toko</th><th>Batch Asal</th><th class="text-right">Qty Keluar</th><th class="text-right">Modal Batch</th><th class="text-right">Total Modal</th></tr>
+                <tr><th>Tanggal Jual</th><th>Nota</th><th>Pelanggan</th><th>Batch Asal</th><th class="text-right">Qty Keluar</th><th class="text-right">Modal Batch</th><th class="text-right">Total Modal</th></tr>
             </thead>
             <tbody>
                 <?php if (empty($fifoUsage)): ?>

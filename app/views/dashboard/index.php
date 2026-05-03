@@ -2,7 +2,7 @@
     <div class="hero-panel">
         <span class="hero-eyebrow">Overview Harian</span>
         <h2>Kontrol toko grosir dalam satu layar.</h2>
-        <p>Pantau performa penjualan, stok kritis, dan toko pelanggan paling aktif tanpa harus berpindah halaman. Dashboard ini dirapikan untuk membantu ambil keputusan lebih cepat.</p>
+        <p>Pantau performa penjualan, stok kritis, dan pelanggan paling aktif tanpa harus berpindah halaman. Dashboard ini dirapikan untuk membantu ambil keputusan lebih cepat.</p>
         <div class="hero-actions">
             <a href="<?= BASE_URL ?>/index.php?page=sales&action=create" class="btn btn-primary">Buat Transaksi</a>
             <a href="<?= BASE_URL ?>/index.php?page=products&action=create" class="btn btn-outline">Tambah Barang</a>
@@ -13,7 +13,7 @@
                 <strong><?= formatDate(date('Y-m-d')) ?></strong>
             </div>
             <div class="hero-pill">
-                <span class="hero-pill-label">Toko Top</span>
+                <span class="hero-pill-label">Pelanggan Top</span>
                 <strong><?= !empty($data['topCustomers']) ? htmlspecialchars($data['topCustomers'][0]['nama_toko']) : 'Belum ada data' ?></strong>
             </div>
         </div>
@@ -97,7 +97,7 @@
                 <thead>
                     <tr>
                         <th>No. Nota</th>
-                        <th>Toko</th>
+                        <th>Pelanggan</th>
                         <th class="text-right">Total</th>
                         <th>Waktu</th>
                     </tr>
@@ -167,14 +167,14 @@
     <div class="card-header">
         <div>
             <h3>Pelanggan Teratas</h3>
-            <p class="section-note">Toko dengan frekuensi transaksi dan nilai belanja tertinggi.</p>
+            <p class="section-note">Pelanggan dengan frekuensi transaksi dan nilai belanja tertinggi.</p>
         </div>
     </div>
     <div class="table-responsive">
         <table>
             <thead>
                 <tr>
-                    <th>Toko</th>
+                    <th>Pelanggan</th>
                     <th class="text-center">Jumlah Transaksi</th>
                     <th class="text-right">Total Belanja</th>
                 </tr>

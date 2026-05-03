@@ -7,12 +7,16 @@ class ReportController {
         $dateFrom = get('date_from', date('Y-m-01'));
         $dateTo = get('date_to', date('Y-m-d'));
         $customerId = get('customer_id');
-        $salesData = $this->model->getSalesReport($dateFrom, $dateTo, $customerId ?: null);
-        $totals = $this->model->getSalesTotals($dateFrom, $dateTo, $customerId ?: null);
-        $perCustomer = $this->model->getSalesPerCustomer($dateFrom, $dateTo);
+        $productId = get('product_id');
+        $salesData = $this->model->getSalesReport($dateFrom, $dateTo, $customerId ?: null, $productId ?: null);
+        $totals = $this->model->getSalesTotals($dateFrom, $dateTo, $customerId ?: null, $productId ?: null);
+        $perCustomer = $this->model->getSalesPerCustomer($dateFrom, $dateTo, $customerId ?: null, $productId ?: null);
         $customerModel = new Customer();
-        $customers = $customerModel->getAll('', 1, 1000);
+        $productModel = new Product();
+        $customers = $customerModel->getAll('', 1, 1000, ['type' => 'customer']);
+        $products = $productModel->getAll('', 1, 1000);
         $pageTitle = 'Laporan Penjualan'; $currentPage = 'reports';
+        $action = 'sales';
         $content = APP_PATH . '/views/reports/sales.php';
         require APP_PATH . '/views/layouts/app.php';
     }
@@ -21,6 +25,7 @@ class ReportController {
         $reportModel = new Report();
         $stockData = $reportModel->getStockReport();
         $pageTitle = 'Laporan Stok'; $currentPage = 'reports';
+        $action = 'stock';
         $content = APP_PATH . '/views/reports/stock.php';
         require APP_PATH . '/views/layouts/app.php';
     }
@@ -79,6 +84,7 @@ class ReportController {
         $summary = $this->model->getFinancialSummary($dateFrom, $dateTo);
         $perCustomer = $this->model->getSalesPerCustomer($dateFrom, $dateTo);
         $pageTitle = 'Laporan Keuangan'; $currentPage = 'reports';
+        $action = 'financial';
         $content = APP_PATH . '/views/reports/financial.php';
         require APP_PATH . '/views/layouts/app.php';
     }

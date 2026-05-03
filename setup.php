@@ -79,7 +79,7 @@ function runSetup(string $host, string $user, string $pass, string $dbname, arra
         addMessage($messages, 'info', 'User admin sudah tersedia.');
     }
 
-    $dirs = [__DIR__ . '/public/uploads/products'];
+    $dirs = [__DIR__ . '/public/uploads/products', __DIR__ . '/public/uploads/stock-notes'];
     foreach ($dirs as $dir) {
         if (!is_dir($dir)) {
             mkdir($dir, 0755, true);
@@ -126,10 +126,11 @@ function ensureDemoCustomer(PDO $db): int {
     }
 
     $stmt = $db->prepare(
-        "INSERT INTO customers (nama_toko, nama_pic, phone, alamat, catatan)
-         VALUES (?, ?, ?, ?, ?)"
+        "INSERT INTO customers (tipe, nama_toko, nama_pic, phone, alamat, catatan)
+         VALUES (?, ?, ?, ?, ?, ?)"
     );
     $stmt->execute([
+        'customer',
         'Toko Demo FIFO',
         'PIC Demo',
         '081234567890',

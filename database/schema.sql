@@ -40,6 +40,7 @@ CREATE TABLE IF NOT EXISTS products (
 -- -------------------------------------------
 CREATE TABLE IF NOT EXISTS customers (
     id INT AUTO_INCREMENT PRIMARY KEY,
+    tipe ENUM('customer', 'supplier') NOT NULL DEFAULT 'customer',
     nama_toko VARCHAR(150) NOT NULL,
     nama_pic VARCHAR(100) DEFAULT NULL,
     phone VARCHAR(25) DEFAULT NULL,
@@ -55,14 +56,18 @@ CREATE TABLE IF NOT EXISTS customers (
 CREATE TABLE IF NOT EXISTS stock_batches (
     id INT AUTO_INCREMENT PRIMARY KEY,
     product_id INT NOT NULL,
+    supplier_id INT DEFAULT NULL,
     tanggal_masuk DATE NOT NULL,
     qty_masuk INT NOT NULL,
     qty_sisa INT NOT NULL,
     harga_modal DECIMAL(15,2) NOT NULL,
+    nomor_nota VARCHAR(100) DEFAULT NULL,
+    nota_file VARCHAR(255) DEFAULT NULL,
     keterangan TEXT DEFAULT NULL,
     created_by INT DEFAULT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE,
+    FOREIGN KEY (supplier_id) REFERENCES customers(id) ON DELETE SET NULL,
     FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE SET NULL
 ) ENGINE=InnoDB;
 

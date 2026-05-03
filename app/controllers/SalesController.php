@@ -10,14 +10,16 @@ class SalesController {
         $totalPages = ceil($total / PER_PAGE);
         $page = $filters['page'];
         $customerModel = new Customer();
-        $customers = $customerModel->getAll('', 1, 1000);
+        $customers = $customerModel->getAll('', 1, 1000, ['type' => 'customer']);
         $pageTitle = 'Riwayat Penjualan'; $currentPage = 'sales';
+        $action = 'index';
         $content = APP_PATH . '/views/sales/index.php';
         require APP_PATH . '/views/layouts/app.php';
     }
     
     public function create() {
         $pageTitle = 'Transaksi Penjualan'; $currentPage = 'sales';
+        $action = 'create';
         $content = APP_PATH . '/views/sales/create.php';
         require APP_PATH . '/views/layouts/app.php';
     }
@@ -30,8 +32,15 @@ class SalesController {
         $qtys = $_POST['qty'] ?? [];
         $hargaJuals = $_POST['harga_jual'] ?? [];
         
-        if (empty($customerid) || empty($tanggal)) { setFlash('error', 'Toko dan tanggal wajib diisi.'); redirect('sales', ['action' => 'create']); return; }
+        if (empty($customerid) || empty($tanggal)) { setFlash('error', 'Pelanggan dan tanggal wajib diisi.'); redirect('sales', ['action' => 'create']); return; }
         if (empty($productIds)) { setFlash('error', 'Tambahkan minimal 1 item.'); redirect('sales', ['action' => 'create']); return; }
+
+        $customer = (new Customer())->getById((int)$customerid);
+        if (!$customer || ($customer['tipe'] ?? 'customer') !== 'customer') {
+            setFlash('error', 'Pelanggan yang dipilih tidak valid.');
+            redirect('sales', ['action' => 'create']);
+            return;
+        }
         
         $items = [];
         for ($i = 0; $i < count($productIds); $i++) {
@@ -57,6 +66,7 @@ class SalesController {
         if (!$sale) { setFlash('error', 'Transaksi tidak ditemukan.'); redirect('sales'); return; }
         $items = $this->model->getItems($id);
         $pageTitle = 'Nota #' . $sale['nomor_transaksi'];
+        $action = 'index';
         require APP_PATH . '/views/sales/invoice.php';
     }
 }

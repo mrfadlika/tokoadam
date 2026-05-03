@@ -1,11 +1,18 @@
-<!-- Create Customer -->
-<div class="card" style="max-width:600px">
-    <div class="card-header"><h3>🏬 Tambah Toko Baru</h3></div>
+<!-- Create Contact -->
+<div class="card" style="max-width:640px">
+    <div class="card-header"><h3>Tambah Kontak Baru</h3></div>
     <div class="card-body">
         <form method="POST" action="<?= BASE_URL ?>/index.php?page=customers&action=store">
             <div class="form-group">
-                <label class="form-label">Nama Toko <span class="required">*</span></label>
-                <input type="text" name="nama_toko" class="form-control" placeholder="Nama toko pelanggan" required>
+                <label class="form-label">Tipe Kontak <span class="required">*</span></label>
+                <select name="tipe" class="form-control" required>
+                    <option value="customer">Pelanggan</option>
+                    <option value="supplier">Supplier</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Nama <span class="required">*</span></label>
+                <input type="text" name="nama_toko" class="form-control" placeholder="Nama pelanggan atau supplier" required>
             </div>
             <div class="form-row">
                 <div class="form-group">
@@ -26,7 +33,7 @@
                 <textarea name="catatan" class="form-control" rows="2" placeholder="Catatan tambahan (opsional)"></textarea>
             </div>
             <div class="d-flex gap-2" style="margin-top:24px">
-                <button type="submit" class="btn btn-primary">💾 Simpan Toko</button>
+                <button type="submit" class="btn btn-primary">Simpan Kontak</button>
                 <a href="<?= BASE_URL ?>/index.php?page=customers" class="btn btn-outline">Batal</a>
             </div>
         </form>

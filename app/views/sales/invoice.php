@@ -5,7 +5,7 @@ if (count($items) === 1) {
 }
 
 $signerName = COMPANY_SIGNER_NAME !== '' ? COMPANY_SIGNER_NAME : ($sale['created_by_name'] ?? 'Administrator');
-$signerRole = COMPANY_SIGNER_ROLE !== '' ? COMPANY_SIGNER_ROLE : 'Kasir';
+$signerRole = COMPANY_SIGNER_ROLE !== '' ? COMPANY_SIGNER_ROLE : 'Owner/Manager';
 $companyAddressLine = trim(COMPANY_ADDRESS);
 $companyPhoneLine = trim(COMPANY_PHONE);
 ?>
@@ -82,12 +82,6 @@ $companyPhoneLine = trim(COMPANY_PHONE);
             font-size: 32px;
             font-weight: 800;
             letter-spacing: 0.02em;
-            text-transform: uppercase;
-        }
-        .company-header .subtitle {
-            margin-top: 4px;
-            font-size: 15px;
-            font-weight: 700;
             text-transform: uppercase;
         }
         .company-header .address,
@@ -202,7 +196,6 @@ $companyPhoneLine = trim(COMPANY_PHONE);
                 <div class="top-line"><?= htmlspecialchars(COMPANY_HEADER_TOP) ?></div>
             <?php endif; ?>
             <div class="name"><?= htmlspecialchars(APP_NAME) ?></div>
-            <div class="subtitle"><?= htmlspecialchars(APP_TAGLINE) ?></div>
             <?php if ($companyAddressLine !== ''): ?>
                 <div class="address"><?= htmlspecialchars($companyAddressLine) ?></div>
             <?php endif; ?>
@@ -225,7 +218,7 @@ $companyPhoneLine = trim(COMPANY_PHONE);
                 <td><?= formatDateWithDay($sale['tanggal_transaksi']) ?></td>
             </tr>
             <tr>
-                <td class="meta-label">Toko/Pelanggan</td>
+                <td class="meta-label">Pelanggan</td>
                 <td class="meta-sep">:</td>
                 <td><?= htmlspecialchars($sale['nama_toko']) ?></td>
             </tr>
@@ -271,10 +264,6 @@ $companyPhoneLine = trim(COMPANY_PHONE);
                 </tr>
             </tfoot>
         </table>
-
-        <?php if (!empty($sale['catatan'])): ?>
-            <div class="invoice-notes"><strong>Catatan:</strong> <?= nl2br(htmlspecialchars($sale['catatan'])) ?></div>
-        <?php endif; ?>
 
         <div class="signature-wrap">
             <div class="signature-box">

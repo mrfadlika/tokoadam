@@ -3,23 +3,59 @@ class Report {
     private $db;
     public function __construct() { $this->db = getDB(); }
     
-    public function getSalesReport($dateFrom, $dateTo, $customerId = null) {
-        $where = "WHERE s.tanggal_transaksi BETWEEN ? AND ?"; $params = [$dateFrom, $dateTo];
-        if ($customerId) { $where .= " AND s.customer_id = ?"; $params[] = $customerId; }
-        $stmt = $this->db->prepare("SELECT s.*, c.nama_toko, u.nama as created_by_name FROM sales s JOIN customers c ON c.id = s.customer_id LEFT JOIN users u ON u.id = s.created_by $where ORDER BY s.tanggal_transaksi DESC");
-        $stmt->execute($params); return $stmt->fetchAll();
+    public function getSalesReport($dateFrom, $dateTo, $customerId = null, $productId = null) {
+        [$where, $params] = $this->buildSalesWhere($dateFrom, $dateTo, $customerId, $productId);
+        $stmt = $this->db->prepare(
+            "SELECT
+                s.*,
+                c.nama_toko,
+                u.nama as created_by_name,
+                COALESCE(SUM(si.qty), 0) as total_item,
+                COALESCE(SUM(si.subtotal), 0) as total_nominal_terfilter
+             FROM sales s
+             JOIN customers c ON c.id = s.customer_id
+             LEFT JOIN users u ON u.id = s.created_by
+             JOIN sale_items si ON si.sale_id = s.id
+             $where
+             GROUP BY s.id
+             ORDER BY s.tanggal_transaksi DESC, s.id DESC"
+        );
+        $stmt->execute($params);
+        return $stmt->fetchAll();
     }
     
-    public function getSalesPerCustomer($dateFrom, $dateTo) {
-        $stmt = $this->db->prepare("SELECT c.nama_toko, COUNT(s.id) as jumlah_transaksi, SUM(s.total) as total_nominal, SUM(si.qty) as total_item FROM sales s JOIN customers c ON c.id = s.customer_id JOIN sale_items si ON si.sale_id = s.id WHERE s.tanggal_transaksi BETWEEN ? AND ? GROUP BY c.id ORDER BY total_nominal DESC");
-        $stmt->execute([$dateFrom, $dateTo]); return $stmt->fetchAll();
+    public function getSalesPerCustomer($dateFrom, $dateTo, $customerId = null, $productId = null) {
+        [$where, $params] = $this->buildSalesWhere($dateFrom, $dateTo, $customerId, $productId);
+        $stmt = $this->db->prepare(
+            "SELECT
+                c.nama_toko,
+                COUNT(DISTINCT s.id) as jumlah_transaksi,
+                COALESCE(SUM(si.subtotal), 0) as total_nominal,
+                COALESCE(SUM(si.qty), 0) as total_item
+             FROM sales s
+             JOIN customers c ON c.id = s.customer_id
+             JOIN sale_items si ON si.sale_id = s.id
+             $where
+             GROUP BY c.id
+             ORDER BY total_nominal DESC"
+        );
+        $stmt->execute($params);
+        return $stmt->fetchAll();
     }
     
-    public function getSalesTotals($dateFrom, $dateTo, $customerId = null) {
-        $where = "WHERE s.tanggal_transaksi BETWEEN ? AND ?"; $params = [$dateFrom, $dateTo];
-        if ($customerId) { $where .= " AND s.customer_id = ?"; $params[] = $customerId; }
-        $stmt = $this->db->prepare("SELECT COUNT(*) as total_transaksi, COALESCE(SUM(s.total), 0) as total_nominal FROM sales s $where");
-        $stmt->execute($params); return $stmt->fetch();
+    public function getSalesTotals($dateFrom, $dateTo, $customerId = null, $productId = null) {
+        [$where, $params] = $this->buildSalesWhere($dateFrom, $dateTo, $customerId, $productId);
+        $stmt = $this->db->prepare(
+            "SELECT
+                COUNT(DISTINCT s.id) as total_transaksi,
+                COALESCE(SUM(si.qty), 0) as total_item,
+                COALESCE(SUM(si.subtotal), 0) as total_nominal
+             FROM sales s
+             JOIN sale_items si ON si.sale_id = s.id
+             $where"
+        );
+        $stmt->execute($params);
+        return $stmt->fetch();
     }
     
     public function getStockReport() {
@@ -84,9 +120,10 @@ class Report {
 
     public function getProductActiveBatches($productId) {
         $stmt = $this->db->prepare(
-            "SELECT sb.*, u.nama as created_by_name
+            "SELECT sb.*, u.nama as created_by_name, c.nama_toko as supplier_name
              FROM stock_batches sb
              LEFT JOIN users u ON u.id = sb.created_by
+             LEFT JOIN customers c ON c.id = sb.supplier_id
              WHERE sb.product_id = ? AND sb.qty_sisa > 0
              ORDER BY sb.tanggal_masuk ASC, sb.id ASC"
         );
@@ -99,9 +136,11 @@ class Report {
             "SELECT
                 sb.*,
                 u.nama as created_by_name,
+                c.nama_toko as supplier_name,
                 (sb.qty_masuk - sb.qty_sisa) as qty_keluar
              FROM stock_batches sb
              LEFT JOIN users u ON u.id = sb.created_by
+             LEFT JOIN customers c ON c.id = sb.supplier_id
              WHERE sb.product_id = ?
              ORDER BY sb.tanggal_masuk DESC, sb.id DESC"
         );
@@ -184,5 +223,22 @@ class Report {
             'year' => "DATE_FORMAT(ph.tanggal, '%Y')",
             default => "DATE_FORMAT(ph.tanggal, '%Y-%m-%d')",
         };
+    }
+
+    private function buildSalesWhere($dateFrom, $dateTo, $customerId = null, $productId = null) {
+        $where = "WHERE s.tanggal_transaksi BETWEEN ? AND ?";
+        $params = [$dateFrom, $dateTo];
+
+        if ($customerId) {
+            $where .= " AND s.customer_id = ?";
+            $params[] = $customerId;
+        }
+
+        if ($productId) {
+            $where .= " AND si.product_id = ?";
+            $params[] = $productId;
+        }
+
+        return [$where, $params];
     }
 }
