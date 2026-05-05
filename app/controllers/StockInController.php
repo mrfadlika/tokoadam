@@ -118,8 +118,13 @@ class StockInController {
             return false;
         }
 
-        if (!is_dir(STOCK_NOTE_PATH) && !mkdir(STOCK_NOTE_PATH, 0755, true) && !is_dir(STOCK_NOTE_PATH)) {
+        if (!is_dir(STOCK_NOTE_PATH) && !@mkdir(STOCK_NOTE_PATH, 0755, true) && !is_dir(STOCK_NOTE_PATH)) {
             setFlash('error', 'Folder upload nota tidak bisa dibuat.');
+            return false;
+        }
+
+        if (!is_writable(STOCK_NOTE_PATH)) {
+            setFlash('error', 'Folder upload nota tidak punya izin tulis.');
             return false;
         }
 

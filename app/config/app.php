@@ -30,6 +30,12 @@ define('UPLOAD_PATH', ROOT_PATH . '/public/uploads');
 define('PRODUCT_IMG_PATH', UPLOAD_PATH . '/products');
 define('STOCK_NOTE_PATH', UPLOAD_PATH . '/stock-notes');
 
+foreach ([UPLOAD_PATH, PRODUCT_IMG_PATH, STOCK_NOTE_PATH] as $dir) {
+    if (!is_dir($dir)) {
+        @mkdir($dir, 0755, true);
+    }
+}
+
 // Upload settings
 define('MAX_UPLOAD_SIZE', 2 * 1024 * 1024); // 2MB
 define('ALLOWED_IMG_TYPES', ['image/jpeg', 'image/png', 'image/webp']);
