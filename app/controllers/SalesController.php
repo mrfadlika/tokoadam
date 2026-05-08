@@ -159,8 +159,8 @@ class SalesController {
             }
         }
 
-        $defaultSignerName = COMPANY_SIGNER_NAME !== '' ? COMPANY_SIGNER_NAME : ($sale['created_by_name'] ?? 'Administrator');
-        $defaultSignerRole = COMPANY_SIGNER_ROLE !== '' ? COMPANY_SIGNER_ROLE : 'Owner/Manager';
+        $defaultSignerName = COMPANY_SIGNER_NAME !== '' ? COMPANY_SIGNER_NAME : '';
+        $defaultSignerRole = COMPANY_SIGNER_ROLE !== '' ? '(' . COMPANY_SIGNER_ROLE . ')' : '';
 
         return [
             'sale_id' => (int)$sale['id'],

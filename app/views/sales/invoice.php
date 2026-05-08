@@ -341,8 +341,8 @@ $invoiceField = static function (
             <div class="signature-box">
                 <div>Dibuat oleh:</div>
                 <div class="signature-space"></div>
-                <div class="signature-name"><?= $invoiceField('signer_name', (string)$invoiceView['signer_name'], 'Isi nama penanda tangan') ?></div>
-                <div class="signature-role">(<?= $invoiceField('signer_role', (string)$invoiceView['signer_role'], 'Isi jabatan penanda tangan') ?>)</div>
+                <div class="signature-name"><?= $invoiceField('signer_name', (string)$invoiceView['signer_name'], 'Isi nama penanda tangan', '', '') ?></div>
+                <div class="signature-role"><?= $invoiceField('signer_role', (string)$invoiceView['signer_role'], '(Jabatan)', '', '') ?></div>
             </div>
         </div>
     </div>
