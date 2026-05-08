@@ -51,6 +51,43 @@ class Product {
         $stmt->execute([$id]);
         return $stmt->fetch();
     }
+
+    public function resolveExactActive($query) {
+        $query = trim((string)$query);
+        if ($query === '') {
+            return ['status' => 'empty', 'product' => null];
+        }
+
+        $stmt = $this->db->prepare(
+            "SELECT id
+             FROM products
+             WHERE is_active = 1 AND LOWER(kode_barang) = LOWER(?)
+             LIMIT 1"
+        );
+        $stmt->execute([$query]);
+        $codeMatchId = $stmt->fetchColumn();
+        if ($codeMatchId) {
+            return ['status' => 'found', 'product' => $this->getById((int)$codeMatchId)];
+        }
+
+        $stmt = $this->db->prepare(
+            "SELECT id
+             FROM products
+             WHERE is_active = 1 AND LOWER(nama_barang) = LOWER(?)
+             ORDER BY id ASC
+             LIMIT 2"
+        );
+        $stmt->execute([$query]);
+        $nameMatches = $stmt->fetchAll(PDO::FETCH_COLUMN);
+        if (count($nameMatches) === 1) {
+            return ['status' => 'found', 'product' => $this->getById((int)$nameMatches[0])];
+        }
+
+        return [
+            'status' => count($nameMatches) > 1 ? 'ambiguous' : 'not_found',
+            'product' => null
+        ];
+    }
     
     public function create($data) {
         $stmt = $this->db->prepare(

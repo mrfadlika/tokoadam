@@ -23,20 +23,20 @@
 
 <div class="card">
     <div class="table-responsive">
-        <table>
+        <table class="table-compact-mobile">
             <thead>
                 <tr>
                     <th>Tanggal</th>
-                    <th>Kode</th>
+                    <th class="mobile-hide-col">Kode</th>
                     <th>Nama Barang</th>
-                    <th>Supplier</th>
-                    <th>No. Nota</th>
-                    <th>Arsip Nota</th>
+                    <th class="mobile-hide-col">Supplier</th>
+                    <th class="mobile-hide-col">No. Nota</th>
+                    <th class="mobile-hide-col">Arsip Nota</th>
                     <th class="text-right">Qty Masuk</th>
-                    <th class="text-right">Sisa</th>
-                    <th class="text-right">Harga Modal</th>
-                    <th>Keterangan</th>
-                    <th>Oleh</th>
+                    <th class="text-right mobile-hide-col">Sisa</th>
+                    <th class="text-right mobile-hide-col">Harga Modal</th>
+                    <th class="mobile-hide-col">Keterangan</th>
+                    <th class="mobile-hide-col">Oleh</th>
                 </tr>
             </thead>
             <tbody>
@@ -52,14 +52,20 @@
                 <?php else: foreach ($batches as $b): ?>
                 <tr>
                     <td class="text-nowrap"><?= formatDate($b['tanggal_masuk']) ?></td>
-                    <td><span class="font-mono"><?= htmlspecialchars($b['kode_barang']) ?></span></td>
+                    <td class="mobile-hide-col"><span class="font-mono"><?= htmlspecialchars($b['kode_barang']) ?></span></td>
                     <td>
                         <a href="<?= BASE_URL ?>/index.php?page=reports&action=stock_detail&id=<?= $b['product_id'] ?>" class="table-link"><?= htmlspecialchars($b['nama_barang']) ?></a>
                         <div class="table-note">Lihat detail FIFO dan harga</div>
+                        <div class="mobile-only-inline">
+                            <span class="font-mono"><?= htmlspecialchars($b['kode_barang']) ?></span>
+                            <?php if (!empty($b['supplier_name'])): ?>
+                                · <?= htmlspecialchars($b['supplier_name']) ?>
+                            <?php endif; ?>
+                        </div>
                     </td>
-                    <td><?= htmlspecialchars($b['supplier_name'] ?? '-') ?></td>
-                    <td><?= htmlspecialchars($b['nomor_nota'] ?? '-') ?></td>
-                    <td>
+                    <td class="mobile-hide-col"><?= htmlspecialchars($b['supplier_name'] ?? '-') ?></td>
+                    <td class="mobile-hide-col"><?= htmlspecialchars($b['nomor_nota'] ?? '-') ?></td>
+                    <td class="mobile-hide-col">
                         <?php if (!empty($b['nota_file'])): ?>
                             <?php
                             $notaUrl = BASE_URL . '/public/uploads/stock-notes/' . rawurlencode($b['nota_file']);
@@ -77,11 +83,14 @@
                             <span class="text-muted">-</span>
                         <?php endif; ?>
                     </td>
-                    <td class="text-right"><?= number_format($b['qty_masuk']) ?> <?= htmlspecialchars($b['satuan']) ?></td>
-                    <td class="text-right fw-bold <?= $b['qty_sisa'] == 0 ? 'text-muted' : '' ?>"><?= number_format($b['qty_sisa']) ?></td>
-                    <td class="text-right"><?= formatRupiah($b['harga_modal']) ?></td>
-                    <td class="text-muted"><?= htmlspecialchars(truncate($b['keterangan'] ?? '-', 30)) ?></td>
-                    <td class="text-muted"><?= htmlspecialchars($b['created_by_name'] ?? '-') ?></td>
+                    <td class="text-right">
+                        <?= number_format($b['qty_masuk']) ?> <?= htmlspecialchars($b['satuan']) ?>
+                        <div class="mobile-only-inline">Sisa: <?= number_format($b['qty_sisa']) ?></div>
+                    </td>
+                    <td class="text-right fw-bold <?= $b['qty_sisa'] == 0 ? 'text-muted' : '' ?> mobile-hide-col"><?= number_format($b['qty_sisa']) ?></td>
+                    <td class="text-right mobile-hide-col"><?= formatRupiah($b['harga_modal']) ?></td>
+                    <td class="text-muted mobile-hide-col"><?= htmlspecialchars(truncate($b['keterangan'] ?? '-', 30)) ?></td>
+                    <td class="text-muted mobile-hide-col"><?= htmlspecialchars($b['created_by_name'] ?? '-') ?></td>
                 </tr>
                 <?php endforeach; endif; ?>
             </tbody>

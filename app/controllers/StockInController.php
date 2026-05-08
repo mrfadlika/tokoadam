@@ -33,8 +33,18 @@ class StockInController {
     }
     
     public function store() {
+        $productResolution = $this->resolveProductSelection(
+            post('product_id'),
+            trim((string)($_POST['product_search'] ?? ''))
+        );
+        if ($productResolution['error']) {
+            setFlash('error', $productResolution['error']);
+            redirect('stock-in', ['action' => 'create']);
+            return;
+        }
+
         $data = [
-            'product_id' => post('product_id'),
+            'product_id' => $productResolution['id'],
             'supplier_id' => post('supplier_id') !== '' ? (int)post('supplier_id') : null,
             'tanggal_masuk' => post('tanggal_masuk'),
             'qty_masuk' => post('qty_masuk'),
@@ -78,6 +88,35 @@ class StockInController {
             setFlash('error', 'Gagal: ' . $e->getMessage());
             redirect('stock-in', ['action' => 'create']);
         }
+    }
+
+    private function resolveProductSelection($postedId, $productSearch) {
+        $productModel = new Product();
+        $postedId = (int)$postedId;
+
+        if ($postedId > 0) {
+            $product = $productModel->getById($postedId);
+            if ($product && (int)($product['is_active'] ?? 0) === 1) {
+                return ['id' => $postedId, 'error' => null];
+            }
+
+            return ['id' => '', 'error' => 'Barang yang dipilih tidak valid atau sudah nonaktif.'];
+        }
+
+        if ($productSearch === '') {
+            return ['id' => '', 'error' => 'Barang wajib diisi.'];
+        }
+
+        $match = $productModel->resolveExactActive($productSearch);
+        if ($match['status'] === 'found' && !empty($match['product']['id'])) {
+            return ['id' => (int)$match['product']['id'], 'error' => null];
+        }
+
+        if ($match['status'] === 'ambiguous') {
+            return ['id' => '', 'error' => 'Nama barang lebih dari satu. Pilih barang dari daftar pencarian.'];
+        }
+
+        return ['id' => '', 'error' => 'Barang tidak ditemukan. Ketik kode/nama yang valid lalu pilih dari daftar.'];
     }
 
     private function uploadNota($file) {

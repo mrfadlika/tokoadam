@@ -65,6 +65,10 @@ function ensureRuntimeSchema(PDO $pdo): void {
             $pdo->exec("ALTER TABLE stock_batches ADD COLUMN nota_file VARCHAR(255) NULL AFTER nomor_nota");
         }
     }
+
+    if (tableExists($pdo, 'sales') && !columnExists($pdo, 'sales', 'invoice_overrides')) {
+        $pdo->exec("ALTER TABLE sales ADD COLUMN invoice_overrides LONGTEXT NULL AFTER catatan");
+    }
 }
 
 function tableExists(PDO $pdo, string $table): bool {

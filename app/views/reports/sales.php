@@ -80,19 +80,31 @@
         <?php endif; ?>
     </div>
     <div class="table-responsive">
-        <table>
-            <thead><tr><th>No. Nota</th><th>Tanggal</th><th>Pelanggan</th><th class="text-right">Qty Item</th><th class="text-right"><?= $isProductFiltered ? 'Nominal Produk' : 'Total Nominal' ?></th><th>User</th></tr></thead>
+        <table class="table-compact-mobile">
+            <thead>
+                <tr>
+                    <th>No. Nota</th>
+                    <th class="mobile-hide-col">Tanggal</th>
+                    <th class="mobile-hide-col">Pelanggan</th>
+                    <th class="text-right mobile-hide-col">Qty Item</th>
+                    <th class="text-right"><?= $isProductFiltered ? 'Nominal Produk' : 'Total Nominal' ?></th>
+                    <th class="mobile-hide-col">User</th>
+                </tr>
+            </thead>
             <tbody>
                 <?php if (empty($salesData)): ?>
                     <tr><td colspan="6" class="text-center text-muted" style="padding:32px">Tidak ada data</td></tr>
                 <?php else: foreach ($salesData as $s): ?>
                 <tr>
-                    <td><span class="font-mono"><?= htmlspecialchars($s['nomor_transaksi']) ?></span></td>
-                    <td><?= formatDate($s['tanggal_transaksi']) ?></td>
-                    <td class="fw-bold"><?= htmlspecialchars($s['nama_toko']) ?></td>
-                    <td class="text-right"><?= number_format($s['total_item'] ?? 0) ?></td>
+                    <td>
+                        <span class="font-mono"><?= htmlspecialchars($s['nomor_transaksi']) ?></span>
+                        <div class="mobile-only-inline"><?= formatDate($s['tanggal_transaksi']) ?> · <?= htmlspecialchars($s['nama_toko']) ?></div>
+                    </td>
+                    <td class="mobile-hide-col"><?= formatDate($s['tanggal_transaksi']) ?></td>
+                    <td class="fw-bold mobile-hide-col"><?= htmlspecialchars($s['nama_toko']) ?></td>
+                    <td class="text-right mobile-hide-col"><?= number_format($s['total_item'] ?? 0) ?></td>
                     <td class="text-right fw-bold"><?= formatRupiah($s['total_nominal_terfilter'] ?? 0) ?></td>
-                    <td class="text-muted"><?= htmlspecialchars($s['created_by_name'] ?? '-') ?></td>
+                    <td class="text-muted mobile-hide-col"><?= htmlspecialchars($s['created_by_name'] ?? '-') ?></td>
                 </tr>
                 <?php endforeach; endif; ?>
             </tbody>

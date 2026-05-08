@@ -15,17 +15,17 @@
 
 <div class="card">
     <div class="table-responsive">
-        <table>
+        <table class="table-compact-mobile">
             <thead>
                 <tr>
                     <th>Tipe</th>
                     <th>Nama</th>
-                    <th>PIC</th>
+                    <th class="mobile-hide-col">PIC</th>
                     <th>Telepon</th>
-                    <th>Alamat</th>
-                    <th class="text-center">Aktivitas</th>
-                    <th>Terakhir</th>
-                    <th class="text-center">Aksi</th>
+                    <th class="mobile-hide-col">Alamat</th>
+                    <th class="text-center mobile-hide-col">Aktivitas</th>
+                    <th class="mobile-hide-col">Terakhir</th>
+                    <th class="text-center mobile-hide-col">Aksi</th>
                 </tr>
             </thead>
             <tbody>
@@ -46,13 +46,18 @@
                             <?= ($c['tipe'] ?? 'customer') === 'supplier' ? 'Supplier' : 'Pelanggan' ?>
                         </span>
                     </td>
-                    <td class="fw-bold"><?= htmlspecialchars($c['nama_toko']) ?></td>
-                    <td><?= htmlspecialchars($c['nama_pic'] ?? '-') ?></td>
+                    <td class="fw-bold">
+                        <?= htmlspecialchars($c['nama_toko']) ?>
+                        <?php if (!empty($c['nama_pic'])): ?>
+                            <div class="mobile-only-inline">PIC: <?= htmlspecialchars($c['nama_pic']) ?></div>
+                        <?php endif; ?>
+                    </td>
+                    <td class="mobile-hide-col"><?= htmlspecialchars($c['nama_pic'] ?? '-') ?></td>
                     <td><?= htmlspecialchars($c['phone'] ?? '-') ?></td>
-                    <td><?= htmlspecialchars(truncate($c['alamat'] ?? '-', 40)) ?></td>
-                    <td class="text-center"><span class="badge badge-info"><?= $c['total_aktivitas'] ?? 0 ?></span></td>
-                    <td class="text-muted"><?= !empty($c['terakhir_aktivitas']) ? formatDate($c['terakhir_aktivitas']) : '-' ?></td>
-                    <td class="text-center">
+                    <td class="mobile-hide-col"><?= htmlspecialchars(truncate($c['alamat'] ?? '-', 40)) ?></td>
+                    <td class="text-center mobile-hide-col"><span class="badge badge-info"><?= $c['total_aktivitas'] ?? 0 ?></span></td>
+                    <td class="text-muted mobile-hide-col"><?= !empty($c['terakhir_aktivitas']) ? formatDate($c['terakhir_aktivitas']) : '-' ?></td>
+                    <td class="text-center mobile-hide-col">
                         <div class="btn-group">
                             <a href="<?= BASE_URL ?>/index.php?page=customers&action=edit&id=<?= $c['id'] ?>" class="btn btn-sm btn-outline">Edit</a>
                             <a href="<?= BASE_URL ?>/index.php?page=customers&action=delete&id=<?= $c['id'] ?>" class="btn btn-sm btn-outline" data-confirm="Yakin ingin menghapus data ini?">Hapus</a>

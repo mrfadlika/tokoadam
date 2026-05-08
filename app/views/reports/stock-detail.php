@@ -222,9 +222,9 @@ if (!empty($chartPoints)) {
             </div>
         </div>
         <div class="table-responsive">
-            <table>
+            <table class="table-compact-mobile">
                 <thead>
-                    <tr><th>Urutan</th><th>Tanggal Masuk</th><th class="text-right">Qty Masuk</th><th class="text-right">Sisa</th><th class="text-right">Harga Modal</th><th class="text-right">Nilai Sisa</th></tr>
+                    <tr><th>Urutan</th><th class="mobile-hide-col">Tanggal Masuk</th><th class="text-right mobile-hide-col">Qty Masuk</th><th class="text-right">Sisa</th><th class="text-right mobile-hide-col">Harga Modal</th><th class="text-right mobile-hide-col">Nilai Sisa</th></tr>
                 </thead>
                 <tbody>
                     <?php if (empty($activeBatches)): ?>
@@ -237,12 +237,13 @@ if (!empty($chartPoints)) {
                                 <?php else: ?>
                                     <span class="badge badge-info">Antrian <?= $index + 1 ?></span>
                                 <?php endif; ?>
+                                <div class="mobile-only-inline"><?= formatDate($batch['tanggal_masuk']) ?></div>
                             </td>
-                            <td class="text-nowrap"><?= formatDate($batch['tanggal_masuk']) ?></td>
-                            <td class="text-right"><?= number_format($batch['qty_masuk']) ?> <?= htmlspecialchars($summary['satuan']) ?></td>
+                            <td class="text-nowrap mobile-hide-col"><?= formatDate($batch['tanggal_masuk']) ?></td>
+                            <td class="text-right mobile-hide-col"><?= number_format($batch['qty_masuk']) ?> <?= htmlspecialchars($summary['satuan']) ?></td>
                             <td class="text-right fw-bold"><?= number_format($batch['qty_sisa']) ?></td>
-                            <td class="text-right"><?= formatRupiah($batch['harga_modal']) ?></td>
-                            <td class="text-right"><?= formatRupiah($batch['qty_sisa'] * $batch['harga_modal']) ?></td>
+                            <td class="text-right mobile-hide-col"><?= formatRupiah($batch['harga_modal']) ?></td>
+                            <td class="text-right mobile-hide-col"><?= formatRupiah($batch['qty_sisa'] * $batch['harga_modal']) ?></td>
                         </tr>
                     <?php endforeach; endif; ?>
                 </tbody>
@@ -259,9 +260,9 @@ if (!empty($chartPoints)) {
         </div>
     </div>
     <div class="table-responsive">
-        <table>
+        <table class="table-compact-mobile">
             <thead>
-                <tr><th>Tanggal</th><th>Supplier</th><th>No. Nota</th><th>Arsip Nota</th><th class="text-right">Qty Masuk</th><th class="text-right">Qty Keluar</th><th class="text-right">Sisa</th><th class="text-right">Harga Modal</th><th>Status</th><th>Keterangan</th><th>Oleh</th></tr>
+                <tr><th>Tanggal</th><th>Supplier</th><th class="mobile-hide-col">No. Nota</th><th class="mobile-hide-col">Arsip Nota</th><th class="text-right">Qty Masuk</th><th class="text-right mobile-hide-col">Qty Keluar</th><th class="text-right mobile-hide-col">Sisa</th><th class="text-right mobile-hide-col">Harga Modal</th><th class="mobile-hide-col">Status</th><th class="mobile-hide-col">Keterangan</th><th class="mobile-hide-col">Oleh</th></tr>
             </thead>
             <tbody>
                 <?php if (empty($stockHistory)): ?>
@@ -270,8 +271,8 @@ if (!empty($chartPoints)) {
                     <tr>
                         <td class="text-nowrap"><?= formatDate($row['tanggal_masuk']) ?></td>
                         <td><?= htmlspecialchars($row['supplier_name'] ?? '-') ?></td>
-                        <td><?= htmlspecialchars($row['nomor_nota'] ?? '-') ?></td>
-                        <td>
+                        <td class="mobile-hide-col"><?= htmlspecialchars($row['nomor_nota'] ?? '-') ?></td>
+                        <td class="mobile-hide-col">
                             <?php if (!empty($row['nota_file'])): ?>
                                 <?php
                                 $notaUrl = BASE_URL . '/public/uploads/stock-notes/' . rawurlencode($row['nota_file']);
@@ -289,11 +290,14 @@ if (!empty($chartPoints)) {
                                 <span class="text-muted">-</span>
                             <?php endif; ?>
                         </td>
-                        <td class="text-right"><?= number_format($row['qty_masuk']) ?> <?= htmlspecialchars($summary['satuan']) ?></td>
-                        <td class="text-right"><?= number_format($row['qty_keluar']) ?></td>
-                        <td class="text-right fw-bold"><?= number_format($row['qty_sisa']) ?></td>
-                        <td class="text-right"><?= formatRupiah($row['harga_modal']) ?></td>
-                        <td>
+                        <td class="text-right">
+                            <?= number_format($row['qty_masuk']) ?> <?= htmlspecialchars($summary['satuan']) ?>
+                            <div class="mobile-only-inline">Sisa: <?= number_format($row['qty_sisa']) ?></div>
+                        </td>
+                        <td class="text-right mobile-hide-col"><?= number_format($row['qty_keluar']) ?></td>
+                        <td class="text-right fw-bold mobile-hide-col"><?= number_format($row['qty_sisa']) ?></td>
+                        <td class="text-right mobile-hide-col"><?= formatRupiah($row['harga_modal']) ?></td>
+                        <td class="mobile-hide-col">
                             <?php if ((int)$row['qty_sisa'] === 0): ?>
                                 <span class="badge badge-neutral">Habis terpakai</span>
                             <?php elseif ((int)$row['qty_sisa'] === (int)$row['qty_masuk']): ?>
@@ -302,8 +306,8 @@ if (!empty($chartPoints)) {
                                 <span class="badge badge-warning">Terpakai sebagian</span>
                             <?php endif; ?>
                         </td>
-                        <td class="text-muted"><?= htmlspecialchars($row['keterangan'] ?: '-') ?></td>
-                        <td class="text-muted"><?= htmlspecialchars($row['created_by_name'] ?: '-') ?></td>
+                        <td class="text-muted mobile-hide-col"><?= htmlspecialchars($row['keterangan'] ?: '-') ?></td>
+                        <td class="text-muted mobile-hide-col"><?= htmlspecialchars($row['created_by_name'] ?: '-') ?></td>
                     </tr>
                 <?php endforeach; endif; ?>
             </tbody>
@@ -319,21 +323,24 @@ if (!empty($chartPoints)) {
         </div>
     </div>
     <div class="table-responsive">
-        <table>
+        <table class="table-compact-mobile">
             <thead>
-                <tr><th>Tanggal Jual</th><th>Nota</th><th>Pelanggan</th><th>Batch Asal</th><th class="text-right">Qty Keluar</th><th class="text-right">Modal Batch</th><th class="text-right">Total Modal</th></tr>
+                <tr><th class="mobile-hide-col">Tanggal Jual</th><th>Nota</th><th class="mobile-hide-col">Pelanggan</th><th class="mobile-hide-col">Batch Asal</th><th class="text-right">Qty Keluar</th><th class="text-right mobile-hide-col">Modal Batch</th><th class="text-right">Total Modal</th></tr>
             </thead>
             <tbody>
                 <?php if (empty($fifoUsage)): ?>
                     <tr><td colspan="7"><div class="empty-state"><div class="empty-icon">TX</div><h4>Belum ada transaksi penjualan</h4><p>Begitu penjualan terjadi, jejak batch FIFO yang terpakai akan terlihat di sini.</p></div></td></tr>
                 <?php else: foreach ($fifoUsage as $usage): ?>
                     <tr>
-                        <td class="text-nowrap"><?= formatDate($usage['tanggal_transaksi']) ?></td>
-                        <td><span class="font-mono"><?= htmlspecialchars($usage['nomor_transaksi']) ?></span></td>
-                        <td class="fw-bold"><?= htmlspecialchars($usage['nama_toko']) ?></td>
-                        <td>Batch <?= formatDate($usage['batch_tanggal_masuk']) ?></td>
+                        <td class="text-nowrap mobile-hide-col"><?= formatDate($usage['tanggal_transaksi']) ?></td>
+                        <td>
+                            <span class="font-mono"><?= htmlspecialchars($usage['nomor_transaksi']) ?></span>
+                            <div class="mobile-only-inline"><?= formatDate($usage['tanggal_transaksi']) ?> · <?= htmlspecialchars($usage['nama_toko']) ?></div>
+                        </td>
+                        <td class="fw-bold mobile-hide-col"><?= htmlspecialchars($usage['nama_toko']) ?></td>
+                        <td class="mobile-hide-col">Batch <?= formatDate($usage['batch_tanggal_masuk']) ?></td>
                         <td class="text-right"><?= number_format($usage['qty_keluar']) ?> <?= htmlspecialchars($summary['satuan']) ?></td>
-                        <td class="text-right"><?= formatRupiah($usage['harga_modal_batch']) ?></td>
+                        <td class="text-right mobile-hide-col"><?= formatRupiah($usage['harga_modal_batch']) ?></td>
                         <td class="text-right fw-bold"><?= formatRupiah($usage['total_modal_batch']) ?></td>
                     </tr>
                 <?php endforeach; endif; ?>

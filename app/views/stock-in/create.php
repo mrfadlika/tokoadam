@@ -5,10 +5,10 @@
         <form method="POST" action="<?= BASE_URL ?>/index.php?page=stock-in&action=store" enctype="multipart/form-data">
             <div class="form-group">
                 <label class="form-label">Pilih Barang <span class="required">*</span></label>
-                <input type="text" id="productSearch" class="form-control" placeholder="Ketik nama atau kode barang..." autocomplete="off">
-                <input type="hidden" name="product_id" id="productId" required>
+                <input type="text" id="productSearch" name="product_search" class="form-control" placeholder="Ketik nama atau kode barang, lalu pilih dari daftar..." autocomplete="off" required>
+                <input type="hidden" name="product_id" id="productId">
                 <div id="productResult" style="position:relative"></div>
-                <div id="productInfo" class="form-hint"></div>
+                <div id="productInfo" class="form-hint">Anda bisa ketik kode atau nama barang. Jika muncul daftar, klik salah satu hasil yang sesuai.</div>
             </div>
             <div class="form-row">
                 <div class="form-group">
@@ -69,6 +69,7 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    const form = document.querySelector('form[action*="page=stock-in&action=store"]');
     const searchInput = document.getElementById('productSearch');
     const productId = document.getElementById('productId');
     const resultDiv = document.getElementById('productResult');
@@ -78,10 +79,20 @@ document.addEventListener('DOMContentLoaded', function() {
     const notaPreviewImage = document.getElementById('notaPreviewImage');
     const notaPreviewText = document.getElementById('notaPreviewText');
     let timer;
+    let selectedLabel = '';
 
     searchInput.addEventListener('input', function() {
         clearTimeout(timer);
         const q = this.value.trim();
+        this.setCustomValidity('');
+        if (q !== selectedLabel) {
+            productId.value = '';
+            if (q.length === 0) {
+                infoDiv.textContent = 'Anda bisa ketik kode atau nama barang. Jika muncul daftar, klik salah satu hasil yang sesuai.';
+            } else {
+                infoDiv.textContent = 'Pilih barang dari daftar hasil pencarian agar barang yang disimpan sesuai.';
+            }
+        }
         if (q.length < 2) { resultDiv.innerHTML = ''; return; }
         timer = setTimeout(() => {
             fetch('<?= BASE_URL ?>/index.php?page=products&action=api_search&q=' + encodeURIComponent(q))
@@ -104,6 +115,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         item.addEventListener('click', function() {
                             productId.value = this.dataset.id;
                             searchInput.value = this.dataset.name;
+                            selectedLabel = this.dataset.name;
                             infoDiv.textContent = 'Stok saat ini: ' + this.dataset.stock + ' ' + this.dataset.unit;
                             resultDiv.innerHTML = '';
                         });
@@ -111,6 +123,17 @@ document.addEventListener('DOMContentLoaded', function() {
                 });
         }, 300);
     });
+
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            searchInput.setCustomValidity('');
+            if (!searchInput.value.trim()) {
+                searchInput.setCustomValidity('Barang wajib diisi.');
+                searchInput.reportValidity();
+                e.preventDefault();
+            }
+        });
+    }
 
     document.addEventListener('click', function(e) {
         if (!resultDiv.contains(e.target) && e.target !== searchInput) resultDiv.innerHTML = '';

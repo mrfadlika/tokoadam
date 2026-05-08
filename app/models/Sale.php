@@ -66,6 +66,36 @@ class Sale {
         $stmt = $this->db->prepare("SELECT s.*, c.nama_toko, c.alamat as alamat_toko, c.phone as phone_toko, u.nama as created_by_name FROM sales s JOIN customers c ON c.id = s.customer_id LEFT JOIN users u ON u.id = s.created_by WHERE s.id = ?");
         $stmt->execute([$id]); return $stmt->fetch();
     }
+
+    public function invoiceNumberExists(string $invoiceNo, int $excludeId = 0): bool {
+        $sql = "SELECT COUNT(*) FROM sales WHERE nomor_transaksi = ?";
+        $params = [$invoiceNo];
+
+        if ($excludeId > 0) {
+            $sql .= " AND id != ?";
+            $params[] = $excludeId;
+        }
+
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute($params);
+        return (int)$stmt->fetchColumn() > 0;
+    }
+
+    public function updateInvoicePresentation(int $saleId, string $invoiceNo, array $overrides): bool {
+        $encodedOverrides = !empty($overrides) ? json_encode($overrides, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) : null;
+        $this->db->beginTransaction();
+        try {
+            $stmt = $this->db->prepare("UPDATE sales SET nomor_transaksi = ?, invoice_overrides = ? WHERE id = ?");
+            $stmt->execute([$invoiceNo, $encodedOverrides, $saleId]);
+            $this->db->prepare("UPDATE stock_movements SET keterangan = ? WHERE ref_type = 'sale' AND ref_id = ?")
+                ->execute(['Penjualan ' . $invoiceNo, $saleId]);
+            $this->db->commit();
+            return true;
+        } catch (Exception $e) {
+            $this->db->rollBack();
+            throw $e;
+        }
+    }
     
     public function getItems($saleId) {
         $stmt = $this->db->prepare("SELECT si.*, p.nama_barang, p.kode_barang, p.satuan FROM sale_items si JOIN products p ON p.id = si.product_id WHERE si.sale_id = ?");
