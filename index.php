@@ -100,6 +100,8 @@ if (in_array($page, $publicPages)) {
                 case 'store': $controller->store(); break;
                 case 'invoice': $controller->invoice(); break;
                 case 'save_invoice': $controller->saveInvoice(); break;
+                case 'update_status': $controller->updateStatus(); break;
+                case 'delete': $controller->delete(); break;
                 default: $controller->index(); break;
             }
             break;

@@ -196,6 +196,63 @@ class SalesController {
         ];
     }
 
+    public function updateStatus() {
+        if (($_SERVER['REQUEST_METHOD'] ?? 'GET') !== 'POST') {
+            setFlash('error', 'Metode request tidak didukung.');
+            redirect('sales');
+            return;
+        }
+
+        $id = (int)post('sale_id');
+        $status = post('status_bayar');
+
+        $sale = $this->model->getById($id);
+        if (!$sale) {
+            setFlash('error', 'Transaksi tidak ditemukan.');
+            redirect('sales');
+            return;
+        }
+
+        if ($this->model->updatePaymentStatus($id, $status)) {
+            $label = $status === 'lunas' ? 'Lunas' : 'Belum Lunas';
+            setFlash('success', 'Status pembayaran berhasil diubah menjadi ' . $label . '.');
+        } else {
+            setFlash('error', 'Gagal mengubah status pembayaran.');
+        }
+        redirect('sales');
+    }
+
+    public function delete() {
+        if (($_SERVER['REQUEST_METHOD'] ?? 'GET') !== 'POST') {
+            setFlash('error', 'Metode request tidak didukung.');
+            redirect('sales');
+            return;
+        }
+
+        // Only admin can delete
+        if (!isAdmin()) {
+            setFlash('error', 'Hanya administrator yang dapat menghapus transaksi.');
+            redirect('sales');
+            return;
+        }
+
+        $id = (int)post('sale_id');
+        $sale = $this->model->getById($id);
+        if (!$sale) {
+            setFlash('error', 'Transaksi tidak ditemukan.');
+            redirect('sales');
+            return;
+        }
+
+        try {
+            $this->model->delete($id);
+            setFlash('success', 'Transaksi #' . $sale['nomor_transaksi'] . ' berhasil dihapus dan stok telah dikembalikan.');
+        } catch (Exception $e) {
+            setFlash('error', 'Gagal menghapus transaksi: ' . $e->getMessage());
+        }
+        redirect('sales');
+    }
+
     private function jsonResponse(array $payload, int $status = 200): void {
         http_response_code($status);
         header('Content-Type: application/json');

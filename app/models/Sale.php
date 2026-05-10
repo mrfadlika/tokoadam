@@ -125,4 +125,51 @@ class Sale {
         }
         return [];
     }
+
+    /**
+     * Update payment status (lunas / belum_lunas)
+     */
+    public function updatePaymentStatus(int $saleId, string $status): bool {
+        $allowed = ['lunas', 'belum_lunas'];
+        if (!in_array($status, $allowed)) return false;
+        $stmt = $this->db->prepare("UPDATE sales SET status_bayar = ? WHERE id = ?");
+        return $stmt->execute([$status, $saleId]);
+    }
+
+    /**
+     * Delete a sale and restore stock (reverse FIFO deductions)
+     */
+    public function delete(int $saleId): bool {
+        $this->db->beginTransaction();
+        try {
+            // Get all sale items with their FIFO deductions
+            $items = $this->db->prepare(
+                "SELECT si.id AS sale_item_id, si.product_id, sif.stock_batch_id, sif.qty_keluar 
+                 FROM sale_items si 
+                 JOIN sale_item_fifo sif ON sif.sale_item_id = si.id 
+                 WHERE si.sale_id = ?"
+            );
+            $items->execute([$saleId]);
+            $fifoRows = $items->fetchAll();
+
+            // Restore stock batches (reverse FIFO)
+            foreach ($fifoRows as $row) {
+                $this->db->prepare("UPDATE stock_batches SET qty_sisa = qty_sisa + ? WHERE id = ?")
+                    ->execute([$row['qty_keluar'], $row['stock_batch_id']]);
+            }
+
+            // Remove stock movements
+            $this->db->prepare("DELETE FROM stock_movements WHERE ref_type = 'sale' AND ref_id = ?")
+                ->execute([$saleId]);
+
+            // Delete the sale (cascades to sale_items and sale_item_fifo)
+            $this->db->prepare("DELETE FROM sales WHERE id = ?")->execute([$saleId]);
+
+            $this->db->commit();
+            return true;
+        } catch (Exception $e) {
+            $this->db->rollBack();
+            throw $e;
+        }
+    }
 }

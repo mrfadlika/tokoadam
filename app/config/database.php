@@ -8,7 +8,7 @@ define('DB_HOST', 'localhost');
 define('DB_PORT', '3306');
 define('DB_NAME', 'toko_adam');
 define('DB_USER', 'root');
-define('DB_PASS', '');
+define('DB_PASS', 'raffi');
 define('DB_CHARSET', 'utf8mb4');
 
 /**
@@ -66,8 +66,13 @@ function ensureRuntimeSchema(PDO $pdo): void {
         }
     }
 
-    if (tableExists($pdo, 'sales') && !columnExists($pdo, 'sales', 'invoice_overrides')) {
-        $pdo->exec("ALTER TABLE sales ADD COLUMN invoice_overrides LONGTEXT NULL AFTER catatan");
+    if (tableExists($pdo, 'sales')) {
+        if (!columnExists($pdo, 'sales', 'status_bayar')) {
+            $pdo->exec("ALTER TABLE sales ADD COLUMN status_bayar ENUM('belum_lunas', 'lunas') NOT NULL DEFAULT 'belum_lunas' AFTER catatan");
+        }
+        if (!columnExists($pdo, 'sales', 'invoice_overrides')) {
+            $pdo->exec("ALTER TABLE sales ADD COLUMN invoice_overrides LONGTEXT NULL AFTER catatan");
+        }
     }
 }
 

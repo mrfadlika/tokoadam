@@ -81,6 +81,7 @@ CREATE TABLE IF NOT EXISTS sales (
     tanggal_transaksi DATE NOT NULL,
     total DECIMAL(15,2) NOT NULL DEFAULT 0,
     catatan TEXT DEFAULT NULL,
+    status_bayar ENUM('belum_lunas', 'lunas') NOT NULL DEFAULT 'belum_lunas',
     invoice_overrides LONGTEXT DEFAULT NULL,
     created_by INT DEFAULT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
