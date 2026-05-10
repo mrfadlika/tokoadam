@@ -113,4 +113,16 @@ class Sale {
     public function getRecent($limit = 5) {
         return $this->db->query("SELECT s.*, c.nama_toko FROM sales s JOIN customers c ON c.id = s.customer_id ORDER BY s.created_at DESC LIMIT $limit")->fetchAll();
     }
+
+    public function getLatestOverrides(): array {
+        $stmt = $this->db->query("SELECT invoice_overrides FROM sales WHERE invoice_overrides IS NOT NULL AND invoice_overrides != '' ORDER BY id DESC LIMIT 1");
+        $row = $stmt->fetch();
+        if ($row && !empty($row['invoice_overrides'])) {
+            $decoded = json_decode((string)$row['invoice_overrides'], true);
+            if (is_array($decoded)) {
+                return $decoded;
+            }
+        }
+        return [];
+    }
 }

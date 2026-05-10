@@ -159,22 +159,40 @@ class SalesController {
             }
         }
 
+        // For presentation fields (not per-transaction), inherit from the latest edited invoice
+        $latestOverrides = [];
+        if (empty($overrides)) {
+            $latestOverrides = $this->model->getLatestOverrides();
+        }
+
+        // Helper: resolve value with priority: own overrides → latest overrides → config default
+        $resolve = function(string $key, string $configDefault) use ($overrides, $latestOverrides): string {
+            if (array_key_exists($key, $overrides)) {
+                return (string)$overrides[$key];
+            }
+            if (array_key_exists($key, $latestOverrides)) {
+                return (string)$latestOverrides[$key];
+            }
+            return $configDefault;
+        };
+
         $defaultSignerName = COMPANY_SIGNER_NAME !== '' ? COMPANY_SIGNER_NAME : '';
         $defaultSignerRole = COMPANY_SIGNER_ROLE !== '' ? '(' . COMPANY_SIGNER_ROLE . ')' : '';
 
         return [
             'sale_id' => (int)$sale['id'],
             'nomor_transaksi' => $sale['nomor_transaksi'],
-            'header_top' => array_key_exists('header_top', $overrides) ? (string)$overrides['header_top'] : (defined('COMPANY_HEADER_TOP') ? (string)COMPANY_HEADER_TOP : ''),
-            'company_name' => array_key_exists('company_name', $overrides) ? (string)$overrides['company_name'] : (defined('APP_NAME') ? (string)APP_NAME : ''),
-            'company_address' => array_key_exists('company_address', $overrides) ? (string)$overrides['company_address'] : (defined('COMPANY_ADDRESS') ? (string)COMPANY_ADDRESS : ''),
-            'company_phone' => array_key_exists('company_phone', $overrides) ? (string)$overrides['company_phone'] : (defined('COMPANY_PHONE') ? (string)COMPANY_PHONE : ''),
-            'invoice_title' => array_key_exists('invoice_title', $overrides) ? (string)$overrides['invoice_title'] : 'Nota Penjualan',
+            'header_top' => $resolve('header_top', defined('COMPANY_HEADER_TOP') ? (string)COMPANY_HEADER_TOP : ''),
+            'company_name' => $resolve('company_name', defined('APP_NAME') ? (string)APP_NAME : ''),
+            'company_address' => $resolve('company_address', defined('COMPANY_ADDRESS') ? (string)COMPANY_ADDRESS : ''),
+            'company_phone' => $resolve('company_phone', defined('COMPANY_PHONE') ? (string)COMPANY_PHONE : ''),
+            'invoice_title' => $resolve('invoice_title', 'Nota Penjualan'),
+            // Per-transaction fields: always from this sale's own data/overrides (not inherited)
             'tanggal_label' => array_key_exists('tanggal_label', $overrides) ? (string)$overrides['tanggal_label'] : formatDateWithDay($sale['tanggal_transaksi']),
             'nama_pelanggan' => array_key_exists('nama_pelanggan', $overrides) ? (string)$overrides['nama_pelanggan'] : (string)$sale['nama_toko'],
             'alamat_pelanggan' => array_key_exists('alamat_pelanggan', $overrides) ? (string)$overrides['alamat_pelanggan'] : (string)($sale['alamat_toko'] ?? ''),
-            'signer_name' => array_key_exists('signer_name', $overrides) ? (string)$overrides['signer_name'] : $defaultSignerName,
-            'signer_role' => array_key_exists('signer_role', $overrides) ? (string)$overrides['signer_role'] : $defaultSignerRole,
+            'signer_name' => $resolve('signer_name', $defaultSignerName),
+            'signer_role' => $resolve('signer_role', $defaultSignerRole),
         ];
     }
 
