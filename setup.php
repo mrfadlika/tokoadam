@@ -5,7 +5,7 @@
 
 $host = 'localhost';
 $user = 'root';
-$pass = 'raffi';
+$pass = '';
 $dbname = 'toko_adam';
 $messages = [];
 

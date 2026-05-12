@@ -103,11 +103,11 @@ class Sale {
     }
     
     public function getTodayCount() {
-        return $this->db->query("SELECT COUNT(*) FROM sales WHERE tanggal_transaksi = CURDATE()")->fetchColumn();
+        return $this->db->query("SELECT COUNT(*) FROM sales WHERE tanggal_transaksi = CURDATE() AND status_bayar = 'lunas'")->fetchColumn();
     }
     
     public function getTodayTotal() {
-        return $this->db->query("SELECT COALESCE(SUM(total), 0) FROM sales WHERE tanggal_transaksi = CURDATE()")->fetchColumn();
+        return $this->db->query("SELECT COALESCE(SUM(total), 0) FROM sales WHERE tanggal_transaksi = CURDATE() AND status_bayar = 'lunas'")->fetchColumn();
     }
     
     public function getRecent($limit = 5) {

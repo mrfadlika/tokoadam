@@ -128,7 +128,7 @@ class Customer {
             "SELECT c.nama_toko, COUNT(s.id) as jumlah_transaksi, COALESCE(SUM(s.total), 0) as total_belanja
              FROM customers c
              JOIN sales s ON s.customer_id = c.id
-             WHERE c.tipe = 'customer'
+             WHERE c.tipe = 'customer' AND s.status_bayar = 'lunas'
              GROUP BY c.id
              ORDER BY jumlah_transaksi DESC
              LIMIT $limit"

@@ -202,7 +202,7 @@ class Report {
              JOIN sales s ON s.id = si.sale_id
              JOIN customers c ON c.id = s.customer_id
              JOIN stock_batches sb ON sb.id = sif.stock_batch_id
-             WHERE si.product_id = ?
+             WHERE si.product_id = ? AND s.status_bayar = 'lunas'
              ORDER BY s.tanggal_transaksi ASC, s.id ASC, sb.tanggal_masuk ASC, sif.id ASC"
         );
         $stmt->execute([$productId]);
@@ -210,7 +210,7 @@ class Report {
     }
     
     public function getFinancialSummary($dateFrom, $dateTo) {
-        $stmt = $this->db->prepare("SELECT COALESCE(SUM(si.subtotal), 0) as total_penjualan, COALESCE(SUM(sif.qty_keluar * sif.harga_modal_batch), 0) as total_modal FROM sales s JOIN sale_items si ON si.sale_id = s.id JOIN sale_item_fifo sif ON sif.sale_item_id = si.id WHERE s.tanggal_transaksi BETWEEN ? AND ?");
+        $stmt = $this->db->prepare("SELECT COALESCE(SUM(si.subtotal), 0) as total_penjualan, COALESCE(SUM(sif.qty_keluar * sif.harga_modal_batch), 0) as total_modal FROM sales s JOIN sale_items si ON si.sale_id = s.id JOIN sale_item_fifo sif ON sif.sale_item_id = si.id WHERE s.tanggal_transaksi BETWEEN ? AND ? AND s.status_bayar = 'lunas'");
         $stmt->execute([$dateFrom, $dateTo]); $result = $stmt->fetch();
         $result['laba_kotor'] = $result['total_penjualan'] - $result['total_modal'];
         $result['margin'] = $result['total_penjualan'] > 0 ? round(($result['laba_kotor'] / $result['total_penjualan']) * 100, 1) : 0;
@@ -226,7 +226,7 @@ class Report {
     }
 
     private function buildSalesWhere($dateFrom, $dateTo, $customerId = null, $productId = null) {
-        $where = "WHERE s.tanggal_transaksi BETWEEN ? AND ?";
+        $where = "WHERE s.tanggal_transaksi BETWEEN ? AND ? AND s.status_bayar = 'lunas'";
         $params = [$dateFrom, $dateTo];
 
         if ($customerId) {

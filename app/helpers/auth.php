@@ -8,11 +8,11 @@ function isLoggedIn() {
 }
 
 function isAdmin() {
-    return isset($_SESSION['user_role']) && $_SESSION['user_role'] === 'admin';
+    return isset($_SESSION['user_role']) && strtolower(trim($_SESSION['user_role'])) === 'admin';
 }
 
 function isStaff() {
-    return isset($_SESSION['user_role']) && $_SESSION['user_role'] === 'staff';
+    return isset($_SESSION['user_role']) && strtolower(trim($_SESSION['user_role'])) === 'staff';
 }
 
 function currentUserId() {
