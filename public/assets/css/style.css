@@ -750,6 +750,15 @@ select.form-control { appearance: none; background-position: right 14px center; 
     font-size: 0.82rem;
 }
 
+.text-nowrap {
+    white-space: nowrap !important;
+}
+
+.col-fit {
+    width: 1%;
+    white-space: nowrap !important;
+}
+
 .badge {
     display: inline-flex;
     align-items: center;

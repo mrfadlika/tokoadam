@@ -99,7 +99,7 @@
                         <th>No. Nota</th>
                         <th>Pelanggan</th>
                         <th class="text-right">Total</th>
-                        <th class="text-center">Status</th>
+                        <th class="text-center text-nowrap">Status</th>
                         <th>Waktu</th>
                     </tr>
                 </thead>
@@ -110,8 +110,8 @@
                         <tr>
                             <td><span class="font-mono"><?= $sale['nomor_transaksi'] ?></span></td>
                             <td><?= htmlspecialchars($sale['nama_toko']) ?></td>
-                            <td class="text-right fw-bold"><?= formatRupiah($sale['total']) ?></td>
-                            <td class="text-center">
+                            <td class="text-right fw-bold text-nowrap"><?= formatRupiah($sale['total']) ?></td>
+                            <td class="text-center col-fit">
                                 <?php $isLunas = ($sale['status_bayar'] ?? 'belum_lunas') === 'lunas'; ?>
                                 <span class="badge <?= $isLunas ? 'badge-success' : 'badge-warning' ?>">
                                     <?= $isLunas ? 'Lunas' : 'Pending' ?>

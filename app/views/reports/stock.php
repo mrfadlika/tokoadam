@@ -34,7 +34,7 @@ $formatModalRange = static function ($min, $max) {
                     <th class="text-right mobile-hide-col">Modal Aktif</th>
                     <th class="text-right mobile-hide-col">Modal Terakhir</th>
                     <th class="text-center mobile-hide-col">Minimum</th>
-                    <th>Status</th>
+                    <th class="text-nowrap">Status</th>
                 </tr>
             </thead>
             <tbody>
@@ -55,7 +55,7 @@ $formatModalRange = static function ($min, $max) {
                         <td class="text-right mobile-hide-col"><?= $formatModalRange($s['harga_modal_min'], $s['harga_modal_max']) ?></td>
                         <td class="text-right mobile-hide-col"><?= $s['harga_modal_terakhir'] !== null ? formatRupiah($s['harga_modal_terakhir']) : '-' ?></td>
                         <td class="text-center mobile-hide-col"><?= number_format((int)$s['stok_minimum']) ?></td>
-                        <td>
+                        <td class="col-fit">
                             <?php if ($stok === 0): ?>
                                 <span class="badge badge-danger">Habis</span>
                             <?php elseif ($stok <= $s['stok_minimum']): ?>
