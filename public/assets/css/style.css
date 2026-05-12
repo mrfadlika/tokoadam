@@ -662,7 +662,7 @@ table td {
     padding: 16px;
     border-bottom: 1px solid var(--line);
     vertical-align: middle;
-    overflow-wrap: anywhere;
+    overflow-wrap: normal;
 }
 
 tbody tr:hover { background: rgba(248, 223, 210, 0.28); }
@@ -759,6 +759,7 @@ select.form-control { appearance: none; background-position: right 14px center; 
     font-size: 0.78rem;
     font-weight: 800;
     white-space: nowrap;
+    min-width: max-content;
 }
 
 .badge-primary { color: var(--primary-strong); background: var(--primary-soft); }

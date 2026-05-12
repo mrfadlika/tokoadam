@@ -113,7 +113,7 @@
                             <td class="text-right fw-bold"><?= formatRupiah($sale['total']) ?></td>
                             <td class="text-center">
                                 <?php $isLunas = ($sale['status_bayar'] ?? 'belum_lunas') === 'lunas'; ?>
-                                <span class="badge <?= $isLunas ? 'badge-success' : 'badge-warning' ?>" style="font-size:0.7rem;padding:4px 8px">
+                                <span class="badge <?= $isLunas ? 'badge-success' : 'badge-warning' ?>">
                                     <?= $isLunas ? 'Lunas' : 'Pending' ?>
                                 </span>
                             </td>
