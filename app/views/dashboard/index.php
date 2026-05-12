@@ -99,17 +99,24 @@
                         <th>No. Nota</th>
                         <th>Pelanggan</th>
                         <th class="text-right">Total</th>
+                        <th class="text-center">Status</th>
                         <th>Waktu</th>
                     </tr>
                 </thead>
                 <tbody>
                     <?php if (empty($data['recentSales'])): ?>
-                        <tr><td colspan="4"><div class="empty-state"><div class="empty-icon">TR</div><h4>Belum ada transaksi</h4><p>Mulai catat penjualan pertama untuk melihat aktivitas terbaru di sini.</p></div></td></tr>
+                        <tr><td colspan="5"><div class="empty-state"><div class="empty-icon">TR</div><h4>Belum ada transaksi</h4><p>Mulai catat penjualan pertama untuk melihat aktivitas terbaru di sini.</p></div></td></tr>
                     <?php else: foreach ($data['recentSales'] as $sale): ?>
                         <tr>
                             <td><span class="font-mono"><?= $sale['nomor_transaksi'] ?></span></td>
                             <td><?= htmlspecialchars($sale['nama_toko']) ?></td>
                             <td class="text-right fw-bold"><?= formatRupiah($sale['total']) ?></td>
+                            <td class="text-center">
+                                <?php $isLunas = ($sale['status_bayar'] ?? 'belum_lunas') === 'lunas'; ?>
+                                <span class="badge <?= $isLunas ? 'badge-success' : 'badge-warning' ?>" style="font-size:0.7rem;padding:4px 8px">
+                                    <?= $isLunas ? 'Lunas' : 'Pending' ?>
+                                </span>
+                            </td>
                             <td class="text-muted"><?= timeAgo($sale['created_at']) ?></td>
                         </tr>
                     <?php endforeach; endif; ?>
