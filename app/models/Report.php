@@ -218,11 +218,14 @@ class Report {
     }
 
     private function buildPricePeriodExpression($grouping) {
-        return match ($grouping) {
-            'month' => "DATE_FORMAT(ph.tanggal, '%Y-%m')",
-            'year' => "DATE_FORMAT(ph.tanggal, '%Y')",
-            default => "DATE_FORMAT(ph.tanggal, '%Y-%m-%d')",
-        };
+        switch ($grouping) {
+            case 'month':
+                return "DATE_FORMAT(ph.tanggal, '%Y-%m')";
+            case 'year':
+                return "DATE_FORMAT(ph.tanggal, '%Y')";
+            default:
+                return "DATE_FORMAT(ph.tanggal, '%Y-%m-%d')";
+        }
     }
 
     private function buildSalesWhere($dateFrom, $dateTo, $customerId = null, $productId = null) {

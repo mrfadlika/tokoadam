@@ -3,10 +3,11 @@
  * Toko Adam - Database Setup + FIFO Demo Seeder
  */
 
-$host = 'localhost';
-$user = 'root';
-$pass = '';
-$dbname = 'toko_adam';
+require_once __DIR__ . '/app/config/database.php';
+$host = DB_HOST;
+$user = DB_USER;
+$pass = DB_PASS;
+$dbname = DB_NAME;
 $messages = [];
 
 function addMessage(array &$messages, string $type, string $message): void {
@@ -40,12 +41,13 @@ function readSchemaStatements(string $schemaPath): array {
     $buffer = '';
     foreach (preg_split('/\R/', $schema) as $line) {
         $trimmed = trim($line);
-        if ($trimmed === '' || str_starts_with($trimmed, '--')) {
+        if ($trimmed === '' || substr($trimmed, 0, 2) === '--') {
             continue;
         }
 
         $buffer .= $line . PHP_EOL;
-        if (str_ends_with(rtrim($line), ';')) {
+        $rtrimmed = rtrim($line);
+        if (substr($rtrimmed, -1) === ';') {
             $statements[] = trim($buffer);
             $buffer = '';
         }

@@ -26,7 +26,9 @@ class StockInController {
     
     public function create() {
         $customerModel = new Customer();
+        $productModel = new Product();
         $suppliers = $customerModel->getAll('', 1, 1000, ['type' => 'supplier']);
+        $productOptions = $productModel->getActiveLookupList(1000);
         $pageTitle = 'Input Barang Masuk'; $currentPage = 'stock-in';
         $content = APP_PATH . '/views/stock-in/create.php';
         require APP_PATH . '/views/layouts/app.php';

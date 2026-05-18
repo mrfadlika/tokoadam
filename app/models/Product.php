@@ -83,6 +83,16 @@ class Product {
             return ['status' => 'found', 'product' => $this->getById((int)$nameMatches[0])];
         }
 
+        if (preg_match('/^(.+?)\s+-\s+(.+)$/u', $query, $matches)) {
+            $segments = [trim($matches[1]), trim($matches[2])];
+            foreach ($segments as $segment) {
+                $normalized = $this->resolveExactActive($segment);
+                if ($normalized['status'] === 'found') {
+                    return $normalized;
+                }
+            }
+        }
+
         return [
             'status' => count($nameMatches) > 1 ? 'ambiguous' : 'not_found',
             'product' => null
@@ -152,6 +162,22 @@ class Product {
              GROUP BY p.id LIMIT 10"
         );
         $stmt->execute(["%$query%", "%$query%"]);
+        return $stmt->fetchAll();
+    }
+
+    public function getActiveLookupList($limit = 1000) {
+        $limit = max(1, (int)$limit);
+        $stmt = $this->db->prepare(
+            "SELECT p.id, p.kode_barang, p.nama_barang, p.satuan,
+                    COALESCE(SUM(sb.qty_sisa), 0) as stok_total
+             FROM products p
+             LEFT JOIN stock_batches sb ON sb.product_id = p.id AND sb.qty_sisa > 0
+             WHERE p.is_active = 1
+             GROUP BY p.id
+             ORDER BY p.nama_barang ASC, p.kode_barang ASC
+             LIMIT $limit"
+        );
+        $stmt->execute();
         return $stmt->fetchAll();
     }
     
