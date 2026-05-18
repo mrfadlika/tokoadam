@@ -10,16 +10,16 @@
 
 <div class="card">
     <div class="table-responsive">
-        <table class="table-compact-mobile">
+        <table class="table-compact-mobile" data-sortable>
             <thead>
                 <tr>
                     <th class="mobile-hide-col">Foto</th>
-                    <th class="mobile-hide-col">Kode</th>
-                    <th>Nama Barang</th>
-                    <th class="mobile-hide-col">Kategori</th>
+                    <th class="mobile-hide-col" data-sort-key="kode">Kode</th>
+                    <th data-sort-key="nama">Nama Barang</th>
+                    <th class="mobile-hide-col" data-sort-key="kategori">Kategori</th>
                     <th class="mobile-hide-col">Satuan</th>
-                    <th class="text-right">Harga Jual</th>
-                    <th class="text-center">Stok</th>
+                    <th class="text-right" data-sort-key="harga">Harga Jual</th>
+                    <th class="text-center" data-sort-key="stok">Stok</th>
                     <th class="mobile-hide-col">Status</th>
                     <th class="text-center mobile-hide-col">Aksi</th>
                 </tr>
@@ -43,8 +43,8 @@
                     </td>
                     <td class="mobile-hide-col"><?= $p['kategori'] ? '<span class="badge badge-info">' . htmlspecialchars($p['kategori']) . '</span>' : '-' ?></td>
                     <td class="mobile-hide-col"><?= htmlspecialchars($p['satuan']) ?></td>
-                    <td class="text-right"><?= formatRupiah($p['harga_jual']) ?></td>
-                    <td class="text-center">
+                    <td class="text-right" data-sort-value="<?= $p['harga_jual'] ?>"><?= formatRupiah($p['harga_jual']) ?></td>
+                    <td class="text-center" data-sort-value="<?= (int)$p['stok_total'] ?>">
                         <?php $stok = (int)$p['stok_total']; ?>
                         <span class="fw-bold <?= $stok <= $p['stok_minimum'] ? ($stok === 0 ? 'text-danger' : 'text-warning') : 'text-success' ?>">
                             <?= $stok ?>

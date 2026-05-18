@@ -15,16 +15,16 @@
 
 <div class="card">
     <div class="table-responsive">
-        <table class="table-compact-mobile">
+        <table class="table-compact-mobile" data-sortable>
             <thead>
                 <tr>
-                    <th>Tipe</th>
-                    <th>Nama</th>
-                    <th class="mobile-hide-col">PIC</th>
-                    <th>Telepon</th>
+                    <th data-sort-key="tipe">Tipe</th>
+                    <th data-sort-key="nama">Nama</th>
+                    <th class="mobile-hide-col" data-sort-key="pic">PIC</th>
+                    <th data-sort-key="telepon">Telepon</th>
                     <th class="mobile-hide-col">Alamat</th>
-                    <th class="text-center mobile-hide-col">Aktivitas</th>
-                    <th class="mobile-hide-col">Terakhir</th>
+                    <th class="text-center mobile-hide-col" data-sort-key="aktivitas">Aktivitas</th>
+                    <th class="mobile-hide-col" data-sort-key="terakhir">Terakhir</th>
                     <th class="text-center mobile-hide-col">Aksi</th>
                 </tr>
             </thead>
@@ -41,7 +41,7 @@
                     </tr>
                 <?php else: foreach ($customers as $c): ?>
                 <tr>
-                    <td>
+                    <td data-sort-value="<?= ($c['tipe'] ?? 'customer') === 'supplier' ? 'supplier' : 'customer' ?>">
                         <span class="badge <?= ($c['tipe'] ?? 'customer') === 'supplier' ? 'badge-warning' : 'badge-primary' ?>">
                             <?= ($c['tipe'] ?? 'customer') === 'supplier' ? 'Supplier' : 'Pelanggan' ?>
                         </span>
@@ -55,8 +55,8 @@
                     <td class="mobile-hide-col"><?= htmlspecialchars($c['nama_pic'] ?? '-') ?></td>
                     <td><?= htmlspecialchars($c['phone'] ?? '-') ?></td>
                     <td class="mobile-hide-col"><?= htmlspecialchars(truncate($c['alamat'] ?? '-', 40)) ?></td>
-                    <td class="text-center mobile-hide-col"><span class="badge badge-info"><?= $c['total_aktivitas'] ?? 0 ?></span></td>
-                    <td class="text-muted mobile-hide-col"><?= !empty($c['terakhir_aktivitas']) ? formatDate($c['terakhir_aktivitas']) : '-' ?></td>
+                    <td class="text-center mobile-hide-col" data-sort-value="<?= $c['total_aktivitas'] ?? 0 ?>"><span class="badge badge-info"><?= $c['total_aktivitas'] ?? 0 ?></span></td>
+                    <td class="text-muted mobile-hide-col" data-sort-value="<?= $c['terakhir_aktivitas'] ?? '' ?>"><?= !empty($c['terakhir_aktivitas']) ? formatDate($c['terakhir_aktivitas']) : '-' ?></td>
                     <td class="text-center mobile-hide-col">
                         <div class="btn-group">
                             <a href="<?= BASE_URL ?>/index.php?page=customers&action=edit&id=<?= $c['id'] ?>" class="btn btn-sm btn-outline">Edit</a>

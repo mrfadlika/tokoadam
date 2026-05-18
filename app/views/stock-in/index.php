@@ -23,26 +23,27 @@
 
 <div class="card">
     <div class="table-responsive">
-        <table class="table-compact-mobile">
+        <table class="table-compact-mobile" data-sortable>
             <thead>
                 <tr>
-                    <th>Tanggal</th>
-                    <th class="mobile-hide-col">Kode</th>
-                    <th>Nama Barang</th>
-                    <th class="mobile-hide-col">Supplier</th>
+                    <th data-sort-key="tanggal">Tanggal</th>
+                    <th class="mobile-hide-col" data-sort-key="kode">Kode</th>
+                    <th data-sort-key="nama">Nama Barang</th>
+                    <th class="mobile-hide-col" data-sort-key="supplier">Supplier</th>
                     <th class="mobile-hide-col">No. Nota</th>
                     <th class="mobile-hide-col">Arsip Nota</th>
-                    <th class="text-right">Qty Masuk</th>
-                    <th class="text-right mobile-hide-col">Sisa</th>
-                    <th class="text-right mobile-hide-col">Harga Modal</th>
+                    <th class="text-right" data-sort-key="qty_masuk">Qty Masuk</th>
+                    <th class="text-right mobile-hide-col" data-sort-key="sisa">Sisa</th>
+                    <th class="text-right mobile-hide-col" data-sort-key="harga_modal">Harga Modal</th>
                     <th class="mobile-hide-col">Keterangan</th>
                     <th class="mobile-hide-col">Oleh</th>
+                    <th class="text-center mobile-hide-col">Aksi</th>
                 </tr>
             </thead>
             <tbody>
                 <?php if (empty($batches)): ?>
                     <tr>
-                        <td colspan="11">
+                        <td colspan="12">
                             <div class="empty-state">
                                 <div class="empty-icon">IN</div>
                                 <h4>Belum ada data barang masuk</h4>
@@ -51,7 +52,7 @@
                     </tr>
                 <?php else: foreach ($batches as $b): ?>
                 <tr>
-                    <td class="text-nowrap"><?= formatDate($b['tanggal_masuk']) ?></td>
+                    <td class="text-nowrap" data-sort-value="<?= $b['tanggal_masuk'] ?>"><?= formatDate($b['tanggal_masuk']) ?></td>
                     <td class="mobile-hide-col"><span class="font-mono"><?= htmlspecialchars($b['kode_barang']) ?></span></td>
                     <td>
                         <a href="<?= BASE_URL ?>/index.php?page=reports&action=stock_detail&id=<?= $b['product_id'] ?>" class="table-link"><?= htmlspecialchars($b['nama_barang']) ?></a>
@@ -83,14 +84,32 @@
                             <span class="text-muted">-</span>
                         <?php endif; ?>
                     </td>
-                    <td class="text-right">
+                    <td class="text-right" data-sort-value="<?= (int)$b['qty_masuk'] ?>">
                         <?= number_format($b['qty_masuk']) ?> <?= htmlspecialchars($b['satuan']) ?>
                         <div class="mobile-only-inline">Sisa: <?= number_format($b['qty_sisa']) ?></div>
                     </td>
-                    <td class="text-right fw-bold <?= $b['qty_sisa'] == 0 ? 'text-muted' : '' ?> mobile-hide-col"><?= number_format($b['qty_sisa']) ?></td>
-                    <td class="text-right mobile-hide-col"><?= formatRupiah($b['harga_modal']) ?></td>
+                    <td class="text-right fw-bold <?= $b['qty_sisa'] == 0 ? 'text-muted' : '' ?> mobile-hide-col" data-sort-value="<?= (int)$b['qty_sisa'] ?>"><?= number_format($b['qty_sisa']) ?></td>
+                    <td class="text-right mobile-hide-col" data-sort-value="<?= $b['harga_modal'] ?>"><?= formatRupiah($b['harga_modal']) ?></td>
                     <td class="text-muted mobile-hide-col"><?= htmlspecialchars(truncate($b['keterangan'] ?? '-', 30)) ?></td>
                     <td class="text-muted mobile-hide-col"><?= htmlspecialchars($b['created_by_name'] ?? '-') ?></td>
+                    <td class="text-center mobile-hide-col col-fit">
+                        <?php $isUsed = (int)$b['qty_sisa'] < (int)$b['qty_masuk']; ?>
+                        <div class="btn-group">
+                            <a href="<?= BASE_URL ?>/index.php?page=stock-in&action=edit&id=<?= $b['id'] ?>" class="btn btn-sm btn-outline">Edit</a>
+                            <?php if ($isUsed): ?>
+                                <button type="button" class="btn btn-sm btn-outline" disabled title="Tidak bisa dihapus karena barang sudah terjual" style="opacity:0.4;cursor:not-allowed">Hapus</button>
+                            <?php else: ?>
+                                <button type="button" class="btn btn-sm btn-danger btn-delete-batch"
+                                    data-batch-id="<?= $b['id'] ?>"
+                                    data-batch-product="<?= htmlspecialchars($b['nama_barang']) ?>"
+                                    data-batch-date="<?= formatDate($b['tanggal_masuk']) ?>"
+                                    data-batch-qty="<?= number_format($b['qty_masuk']) ?> <?= htmlspecialchars($b['satuan']) ?>"
+                                    title="Hapus barang masuk">
+                                    Hapus
+                                </button>
+                            <?php endif; ?>
+                        </div>
+                    </td>
                 </tr>
                 <?php endforeach; endif; ?>
             </tbody>
@@ -106,3 +125,81 @@
     </div>
     <?php endif; ?>
 </div>
+
+<!-- Delete Confirmation Modal -->
+<div class="confirm-modal-overlay" id="deleteModalOverlay">
+    <div class="confirm-modal">
+        <div class="confirm-modal-icon confirm-modal-icon-danger">
+            <svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="3 6 5 6 21 6"></polyline>
+                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                <line x1="10" y1="11" x2="10" y2="17"></line>
+                <line x1="14" y1="11" x2="14" y2="17"></line>
+            </svg>
+        </div>
+        <h3 class="confirm-modal-title">Hapus Barang Masuk?</h3>
+        <p class="confirm-modal-desc">Anda yakin ingin menghapus data barang masuk ini? Stok barang akan disesuaikan secara otomatis.</p>
+        <div class="confirm-modal-detail" id="deleteModalDetail">
+            <div class="confirm-detail-row">
+                <span class="confirm-detail-label">Barang</span>
+                <span class="confirm-detail-value" id="deleteModalProduct">-</span>
+            </div>
+            <div class="confirm-detail-row">
+                <span class="confirm-detail-label">Tanggal Masuk</span>
+                <span class="confirm-detail-value" id="deleteModalDate">-</span>
+            </div>
+            <div class="confirm-detail-row">
+                <span class="confirm-detail-label">Jumlah (Qty)</span>
+                <span class="confirm-detail-value" id="deleteModalQty">-</span>
+            </div>
+        </div>
+        <div class="confirm-modal-warning">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                <line x1="12" y1="9" x2="12" y2="13"></line>
+                <line x1="12" y1="17" x2="12.01" y2="17"></line>
+            </svg>
+            <span>Tindakan ini tidak dapat dibatalkan!</span>
+        </div>
+        <div class="confirm-modal-actions">
+            <button type="button" class="btn btn-outline" id="deleteModalCancel">Batal</button>
+            <form method="POST" action="" id="deleteModalForm">
+                <button type="submit" class="btn btn-danger">Ya, Hapus Data</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const overlay = document.getElementById('deleteModalOverlay');
+    const cancelBtn = document.getElementById('deleteModalCancel');
+    const form = document.getElementById('deleteModalForm');
+
+    // Open modal when delete button is clicked
+    document.querySelectorAll('.btn-delete-batch').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            document.getElementById('deleteModalProduct').textContent = this.dataset.batchProduct;
+            document.getElementById('deleteModalDate').textContent = this.dataset.batchDate;
+            document.getElementById('deleteModalQty').textContent = this.dataset.batchQty;
+            form.action = '<?= BASE_URL ?>/index.php?page=stock-in&action=delete&id=' + this.dataset.batchId;
+            overlay.classList.add('is-active');
+            document.body.style.overflow = 'hidden';
+        });
+    });
+
+    // Close modal
+    function closeDeleteModal() {
+        overlay.classList.remove('is-active');
+        document.body.style.overflow = '';
+    }
+
+    cancelBtn.addEventListener('click', closeDeleteModal);
+    overlay.addEventListener('click', function(e) {
+        if (e.target === overlay) closeDeleteModal();
+    });
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && overlay.classList.contains('is-active')) closeDeleteModal();
+    });
+});
+</script>

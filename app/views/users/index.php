@@ -6,14 +6,14 @@
 
 <div class="card">
     <div class="table-responsive">
-        <table class="table-compact-mobile">
+        <table class="table-compact-mobile" data-sortable>
             <thead>
                 <tr>
-                    <th>Nama</th>
-                    <th class="mobile-hide-col">Username</th>
-                    <th>Role</th>
-                    <th>Status</th>
-                    <th class="mobile-hide-col">Dibuat</th>
+                    <th data-sort-key="nama">Nama</th>
+                    <th class="mobile-hide-col" data-sort-key="username">Username</th>
+                    <th data-sort-key="role">Role</th>
+                    <th data-sort-key="status">Status</th>
+                    <th class="mobile-hide-col" data-sort-key="dibuat">Dibuat</th>
                     <th class="text-center mobile-hide-col">Aksi</th>
                 </tr>
             </thead>
@@ -25,9 +25,9 @@
                         <div class="mobile-only-inline"><span class="font-mono"><?= htmlspecialchars($u['username']) ?></span></div>
                     </td>
                     <td class="mobile-hide-col"><span class="font-mono"><?= htmlspecialchars($u['username']) ?></span></td>
-                    <td><span class="badge <?= $u['role'] === 'admin' ? 'badge-primary' : 'badge-info' ?>"><?= ucfirst($u['role']) ?></span></td>
-                    <td><?= $u['is_active'] ? '<span class="badge badge-success">Aktif</span>' : '<span class="badge badge-danger">Nonaktif</span>' ?></td>
-                    <td class="text-muted mobile-hide-col"><?= formatDate($u['created_at']) ?></td>
+                    <td data-sort-value="<?= htmlspecialchars($u['role']) ?>"><span class="badge <?= $u['role'] === 'admin' ? 'badge-primary' : 'badge-info' ?>"><?= ucfirst($u['role']) ?></span></td>
+                    <td data-sort-value="<?= $u['is_active'] ? 'aktif' : 'nonaktif' ?>"><?= $u['is_active'] ? '<span class="badge badge-success">Aktif</span>' : '<span class="badge badge-danger">Nonaktif</span>' ?></td>
+                    <td class="text-muted mobile-hide-col" data-sort-value="<?= $u['created_at'] ?>"><?= formatDate($u['created_at']) ?></td>
                     <td class="text-center mobile-hide-col">
                         <div class="btn-group">
                             <a href="<?= BASE_URL ?>/index.php?page=users&action=edit&id=<?= $u['id'] ?>" class="btn btn-sm btn-outline">Edit</a>

@@ -64,4 +64,117 @@ class StockBatch {
         $stmt = $this->db->prepare("SELECT * FROM stock_batches WHERE product_id = ? AND qty_sisa > 0 ORDER BY tanggal_masuk ASC");
         $stmt->execute([$productId]); return $stmt->fetchAll();
     }
+
+    public function getById($id) {
+        $stmt = $this->db->prepare("SELECT sb.*, p.nama_barang, p.kode_barang, p.satuan FROM stock_batches sb JOIN products p ON p.id = sb.product_id WHERE sb.id = ?");
+        $stmt->execute([$id]);
+        return $stmt->fetch();
+    }
+
+    public function isUsedInSale($id) {
+        $stmt = $this->db->prepare("SELECT COUNT(*) FROM sale_item_fifo WHERE stock_batch_id = ?");
+        $stmt->execute([$id]);
+        if ($stmt->fetchColumn() > 0) {
+            return true;
+        }
+        
+        $stmt = $this->db->prepare("SELECT qty_masuk, qty_sisa FROM stock_batches WHERE id = ?");
+        $stmt->execute([$id]);
+        $batch = $stmt->fetch();
+        if ($batch && (float)$batch['qty_sisa'] < (float)$batch['qty_masuk']) {
+            return true;
+        }
+        
+        return false;
+    }
+
+    public function update($id, $data) {
+        $this->db->beginTransaction();
+        try {
+            $stmt = $this->db->prepare("SELECT * FROM stock_batches WHERE id = ?");
+            $stmt->execute([$id]);
+            $old = $stmt->fetch();
+            if (!$old) {
+                throw new Exception("Batch tidak ditemukan.");
+            }
+
+            $isUsed = $this->isUsedInSale($id);
+            if ($isUsed) {
+                if ((int)$old['product_id'] !== (int)$data['product_id'] || (int)$old['qty_masuk'] !== (int)$data['qty_masuk']) {
+                    throw new Exception("Barang atau Qty masuk tidak bisa diubah karena batch ini sudah digunakan dalam transaksi penjualan.");
+                }
+            }
+
+            $qtySisa = $isUsed ? ($old['qty_sisa'] + ($data['qty_masuk'] - $old['qty_masuk'])) : $data['qty_masuk'];
+            if ($qtySisa < 0) {
+                throw new Exception("Jumlah sisa tidak boleh negatif.");
+            }
+
+            $stmt = $this->db->prepare(
+                "UPDATE stock_batches 
+                 SET product_id = ?, supplier_id = ?, tanggal_masuk = ?, qty_masuk = ?, qty_sisa = ?, harga_modal = ?, nomor_nota = ?, nota_file = ?, keterangan = ? 
+                 WHERE id = ?"
+            );
+            $stmt->execute([
+                $data['product_id'],
+                $data['supplier_id'] !== '' ? (int)$data['supplier_id'] : null,
+                $data['tanggal_masuk'],
+                $data['qty_masuk'],
+                $qtySisa,
+                $data['harga_modal'],
+                $data['nomor_nota'] !== '' ? $data['nomor_nota'] : null,
+                $data['nota_file'] !== null ? $data['nota_file'] : $old['nota_file'],
+                $data['keterangan'] !== '' ? $data['keterangan'] : null,
+                $id
+            ]);
+
+            $stmt = $this->db->prepare("UPDATE stock_movements SET product_id = ?, qty = ? WHERE ref_type = 'stock_batch' AND ref_id = ?");
+            $stmt->execute([$data['product_id'], $data['qty_masuk'], $id]);
+
+            $stmt = $this->db->prepare("UPDATE price_histories SET product_id = ?, harga_modal = ?, tanggal = ? WHERE sumber_batch_id = ?");
+            $stmt->execute([$data['product_id'], $data['harga_modal'], $data['tanggal_masuk'], $id]);
+
+            $this->db->commit();
+            return true;
+        } catch (Exception $e) {
+            $this->db->rollBack();
+            throw $e;
+        }
+    }
+
+    public function delete($id) {
+        $this->db->beginTransaction();
+        try {
+            if ($this->isUsedInSale($id)) {
+                throw new Exception("Barang masuk tidak bisa dihapus karena sudah digunakan dalam transaksi penjualan.");
+            }
+
+            $stmt = $this->db->prepare("SELECT nota_file FROM stock_batches WHERE id = ?");
+            $stmt->execute([$id]);
+            $batch = $stmt->fetch();
+
+            $stmt = $this->db->prepare("DELETE FROM stock_movements WHERE ref_type = 'stock_batch' AND ref_id = ?");
+            $stmt->execute([$id]);
+
+            $stmt = $this->db->prepare("DELETE FROM price_histories WHERE sumber_batch_id = ?");
+            $stmt->execute([$id]);
+
+            $stmt = $this->db->prepare("DELETE FROM stock_batches WHERE id = ?");
+            $stmt->execute([$id]);
+
+            $this->db->commit();
+
+            if ($batch && !empty($batch['nota_file'])) {
+                $filePath = STOCK_NOTE_PATH . '/' . $batch['nota_file'];
+                if (file_exists($filePath)) {
+                    @unlink($filePath);
+                }
+            }
+
+            return true;
+        } catch (Exception $e) {
+            $this->db->rollBack();
+            throw $e;
+        }
+    }
 }

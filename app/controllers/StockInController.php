@@ -177,4 +177,143 @@ class StockInController {
 
         return $filename;
     }
+
+    public function edit() {
+        $id = (int)get('id');
+        $batch = $this->model->getById($id);
+        if (!$batch) {
+            setFlash('error', 'Barang masuk tidak ditemukan.');
+            redirect('stock-in');
+            return;
+        }
+
+        $isUsed = $this->model->isUsedInSale($id);
+
+        $customerModel = new Customer();
+        $productModel = new Product();
+        $suppliers = $customerModel->getAll('', 1, 1000, ['type' => 'supplier']);
+        $productOptions = $productModel->getActiveLookupList(1000);
+        
+        $productOptionsLookup = [];
+        foreach ($productOptions as $opt) {
+            $productOptionsLookup[] = [
+                'id' => (int)$opt['id'],
+                'kode_barang' => (string)$opt['kode_barang'],
+                'nama_barang' => (string)$opt['nama_barang'],
+                'satuan' => (string)($opt['satuan'] ?? ''),
+                'stok_total' => (int)($opt['stok_total'] ?? 0),
+                'label' => trim((string)$opt['nama_barang']) . ' - ' . trim((string)$opt['kode_barang']),
+            ];
+        }
+
+        $pageTitle = 'Edit Barang Masuk'; $currentPage = 'stock-in';
+        $content = APP_PATH . '/views/stock-in/edit.php';
+        require APP_PATH . '/views/layouts/app.php';
+    }
+
+    public function update() {
+        $id = (int)get('id');
+        $batch = $this->model->getById($id);
+        if (!$batch) {
+            setFlash('error', 'Barang masuk tidak ditemukan.');
+            redirect('stock-in');
+            return;
+        }
+
+        $isUsed = $this->model->isUsedInSale($id);
+
+        if ($isUsed) {
+            $productId = $batch['product_id'];
+            $qtyMasuk = $batch['qty_masuk'];
+        } else {
+            $productResolution = $this->resolveProductSelection(
+                post('product_id'),
+                trim((string)($_POST['product_search'] ?? ''))
+            );
+            if ($productResolution['error']) {
+                setFlash('error', $productResolution['error']);
+                redirect('stock-in', ['action' => 'edit', 'id' => $id]);
+                return;
+            }
+            $productId = $productResolution['id'];
+            $qtyMasuk = post('qty_masuk');
+        }
+
+        $data = [
+            'product_id' => $productId,
+            'supplier_id' => post('supplier_id') !== '' ? (int)post('supplier_id') : null,
+            'tanggal_masuk' => post('tanggal_masuk'),
+            'qty_masuk' => $qtyMasuk,
+            'harga_modal' => post('harga_modal'),
+            'nomor_nota' => trim((string)post('nomor_nota')),
+            'keterangan' => post('keterangan'),
+            'nota_file' => null
+        ];
+
+        $v = new Validator($data);
+        $v->required('product_id', 'Barang')->required('tanggal_masuk', 'Tanggal masuk')
+          ->required('qty_masuk', 'Qty masuk')->numeric('qty_masuk', 'Qty masuk')->minValue('qty_masuk', 1, 'Qty masuk')
+          ->required('harga_modal', 'Harga modal')->numeric('harga_modal', 'Harga modal')->minValue('harga_modal', 1, 'Harga modal');
+
+        if ($v->hasErrors()) {
+            setFlash('error', $v->getFirstError());
+            redirect('stock-in', ['action' => 'edit', 'id' => $id]);
+            return;
+        }
+
+        if ($data['supplier_id']) {
+            $supplier = (new Customer())->getById($data['supplier_id']);
+            if (!$supplier || ($supplier['tipe'] ?? 'customer') !== 'supplier') {
+                setFlash('error', 'Supplier yang dipilih tidak valid.');
+                redirect('stock-in', ['action' => 'edit', 'id' => $id]);
+                return;
+            }
+        }
+
+        if (isset($_FILES['nota_file']) && ($_FILES['nota_file']['error'] !== UPLOAD_ERR_NO_FILE)) {
+            $notaFile = $this->uploadNota($_FILES['nota_file']);
+            if ($notaFile === false) {
+                redirect('stock-in', ['action' => 'edit', 'id' => $id]);
+                return;
+            }
+            $data['nota_file'] = $notaFile;
+
+            if (!empty($batch['nota_file'])) {
+                $oldFilePath = STOCK_NOTE_PATH . '/' . $batch['nota_file'];
+                if (file_exists($oldFilePath)) {
+                    @unlink($oldFilePath);
+                }
+            }
+        }
+
+        try {
+            $this->model->update($id, $data);
+            setFlash('success', 'Barang masuk berhasil diperbarui.');
+            redirect('stock-in');
+        } catch (Exception $e) {
+            if (!empty($data['nota_file']) && file_exists(STOCK_NOTE_PATH . '/' . $data['nota_file'])) {
+                @unlink(STOCK_NOTE_PATH . '/' . $data['nota_file']);
+            }
+            setFlash('error', 'Gagal: ' . $e->getMessage());
+            redirect('stock-in', ['action' => 'edit', 'id' => $id]);
+        }
+    }
+
+    public function delete() {
+        $id = (int)get('id');
+        $batch = $this->model->getById($id);
+        if (!$batch) {
+            setFlash('error', 'Barang masuk tidak ditemukan.');
+            redirect('stock-in');
+            return;
+        }
+
+        try {
+            $this->model->delete($id);
+            setFlash('success', 'Catatan barang masuk berhasil dihapus.');
+        } catch (Exception $e) {
+            setFlash('error', 'Gagal menghapus: ' . $e->getMessage());
+        }
+        redirect('stock-in');
+    }
 }

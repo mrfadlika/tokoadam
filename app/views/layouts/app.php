@@ -152,6 +152,7 @@ $icon = static function (string $name): string {
     </div>
 
     <script src="<?= BASE_URL ?>/public/assets/js/app.js"></script>
+    <script src="<?= BASE_URL ?>/public/assets/js/sortable.js"></script>
     <?php if (isset($extraJs)): ?>
         <script src="<?= BASE_URL ?>/public/assets/js/<?= $extraJs ?>"></script>
     <?php endif; ?>

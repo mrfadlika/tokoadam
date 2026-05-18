@@ -1981,3 +1981,69 @@ select.form-control { appearance: none; background-position: right 14px center; 
         width: 100%;
     }
 }
+
+/* Table sorting styles */
+th[data-sort-key] {
+    cursor: pointer;
+    user-select: none;
+    position: relative;
+    padding-right: 28px !important;
+    transition: background-color var(--transition), color var(--transition);
+}
+
+th[data-sort-key]:hover {
+    background-color: var(--primary-soft) !important;
+    color: var(--primary-strong) !important;
+}
+
+.sort-indicator {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    opacity: 0.3;
+    transition: opacity var(--transition);
+    width: 14px;
+    height: 14px;
+    color: currentColor;
+}
+
+th[data-sort-key]:hover .sort-indicator {
+    opacity: 0.7;
+}
+
+.sort-indicator .arrow {
+    width: 8px;
+    height: 8px;
+    transition: transform var(--transition), stroke var(--transition);
+}
+
+.sort-indicator .arrow-up {
+    margin-bottom: -1px;
+}
+
+.sort-indicator .arrow-down {
+    margin-top: -1px;
+}
+
+th.sort-active .sort-indicator {
+    opacity: 1;
+}
+
+th.sort-asc .arrow-down {
+    display: none;
+}
+
+th.sort-desc .arrow-up {
+    display: none;
+}
+
+th.sort-active {
+    color: var(--primary-strong) !important;
+    background-color: var(--primary-soft) !important;
+}
+

@@ -18,14 +18,14 @@
 
 <div class="card">
     <div class="table-responsive">
-        <table class="table-compact-mobile">
+        <table class="table-compact-mobile" data-sortable>
             <thead>
                 <tr>
-                    <th>No. Nota</th>
-                    <th class="mobile-hide-col">Tanggal</th>
-                    <th class="mobile-hide-col">Pelanggan</th>
-                    <th class="text-right">Total</th>
-                    <th class="text-center mobile-hide-col text-nowrap">Status Pembayaran</th>
+                    <th data-sort-key="nota">No. Nota</th>
+                    <th class="mobile-hide-col" data-sort-key="tanggal">Tanggal</th>
+                    <th class="mobile-hide-col" data-sort-key="pelanggan">Pelanggan</th>
+                    <th class="text-right" data-sort-key="total">Total</th>
+                    <th class="text-center mobile-hide-col text-nowrap" data-sort-key="status">Status Pembayaran</th>
                     <th class="mobile-hide-col">User</th>
                     <th class="text-center mobile-hide-col">Aksi</th>
                 </tr>
@@ -39,10 +39,10 @@
                         <span class="font-mono"><?= htmlspecialchars($s['nomor_transaksi']) ?></span>
                         <div class="mobile-only-inline"><?= formatDate($s['tanggal_transaksi']) ?> · <?= htmlspecialchars($s['nama_toko']) ?></div>
                     </td>
-                    <td class="text-nowrap mobile-hide-col"><?= formatDate($s['tanggal_transaksi']) ?></td>
+                    <td class="text-nowrap mobile-hide-col" data-sort-value="<?= $s['tanggal_transaksi'] ?>"><?= formatDate($s['tanggal_transaksi']) ?></td>
                     <td class="fw-bold mobile-hide-col"><?= htmlspecialchars($s['nama_toko']) ?></td>
-                    <td class="text-right fw-bold"><?= formatRupiah($s['total']) ?></td>
-                    <td class="text-center mobile-hide-col col-fit">
+                    <td class="text-right fw-bold" data-sort-value="<?= $s['total'] ?>"><?= formatRupiah($s['total']) ?></td>
+                    <td class="text-center mobile-hide-col col-fit" data-sort-value="<?= $s['status_bayar'] ?? 'belum_lunas' ?>">
                         <?php $isLunas = ($s['status_bayar'] ?? 'belum_lunas') === 'lunas'; ?>
                         <span class="badge <?= $isLunas ? 'badge-success' : 'badge-warning' ?>">
                             <?= $isLunas ? '✓ Lunas' : '○ Belum Lunas' ?>
