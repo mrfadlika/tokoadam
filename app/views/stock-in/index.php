@@ -26,18 +26,18 @@
         <table class="table-compact-mobile" data-sortable>
             <thead>
                 <tr>
-                    <th data-sort-key="tanggal">Tanggal</th>
-                    <th class="mobile-hide-col" data-sort-key="kode">Kode</th>
+                    <th class="w-90" data-sort-key="tanggal">Tanggal</th>
+                    <th class="mobile-hide-col w-90" data-sort-key="kode">Kode</th>
                     <th data-sort-key="nama">Nama Barang</th>
-                    <th class="mobile-hide-col" data-sort-key="supplier">Supplier</th>
-                    <th class="mobile-hide-col">No. Nota</th>
-                    <th class="mobile-hide-col">Arsip Nota</th>
-                    <th class="text-right" data-sort-key="qty_masuk">Qty Masuk</th>
-                    <th class="text-right mobile-hide-col" data-sort-key="sisa">Sisa</th>
-                    <th class="text-right mobile-hide-col" data-sort-key="harga_modal">Harga Modal</th>
+                    <th class="mobile-hide-col w-100" data-sort-key="supplier">Supplier</th>
+                    <th class="mobile-hide-col w-90">No. Nota</th>
+                    <th class="mobile-hide-col w-80">Arsip Nota</th>
+                    <th class="text-right w-80" data-sort-key="qty_masuk">Qty Masuk</th>
+                    <th class="text-right mobile-hide-col w-60" data-sort-key="sisa">Sisa</th>
+                    <th class="text-right mobile-hide-col w-100" data-sort-key="harga_modal">Harga Modal</th>
                     <th class="mobile-hide-col">Keterangan</th>
-                    <th class="mobile-hide-col">Oleh</th>
-                    <th class="text-center mobile-hide-col">Aksi</th>
+                    <th class="mobile-hide-col w-80">Oleh</th>
+                    <th class="text-center mobile-hide-col w-80">Aksi</th>
                 </tr>
             </thead>
             <tbody>
@@ -58,41 +58,40 @@
                         <a href="<?= BASE_URL ?>/index.php?page=reports&action=stock_detail&id=<?= $b['product_id'] ?>" class="table-link"><?= htmlspecialchars($b['nama_barang']) ?></a>
                         <div class="table-note">Lihat detail FIFO dan harga</div>
                         <div class="mobile-only-inline">
-                            <span class="font-mono"><?= htmlspecialchars($b['kode_barang']) ?></span>
-                            <?php if (!empty($b['supplier_name'])): ?>
-                                · <?= htmlspecialchars($b['supplier_name']) ?>
-                            <?php endif; ?>
+                            <?= htmlspecialchars($b['supplier_name'] ?? '-') ?> · <?= formatRupiah($b['harga_modal']) ?>
                         </div>
                     </td>
                     <td class="mobile-hide-col"><?= htmlspecialchars($b['supplier_name'] ?? '-') ?></td>
                     <td class="mobile-hide-col"><?= htmlspecialchars($b['nomor_nota'] ?? '-') ?></td>
                     <td class="mobile-hide-col">
                         <?php if (!empty($b['nota_file'])): ?>
-                            <?php
+                            <?php 
                             $notaUrl = BASE_URL . '/public/uploads/stock-notes/' . rawurlencode($b['nota_file']);
                             $notaExt = strtolower(pathinfo($b['nota_file'], PATHINFO_EXTENSION));
                             $isImageNota = in_array($notaExt, ['jpg', 'jpeg', 'png', 'webp'], true);
                             ?>
                             <?php if ($isImageNota): ?>
                                 <a href="<?= htmlspecialchars($notaUrl) ?>" target="_blank" rel="noopener" title="Buka foto nota">
-                                    <img src="<?= htmlspecialchars($notaUrl) ?>" alt="Foto nota" style="width:54px;height:54px;object-fit:cover;border-radius:10px;border:1px solid var(--border)">
+                                    <img src="<?= htmlspecialchars($notaUrl) ?>" alt="Foto nota" style="width:48px;height:48px;object-fit:cover;border-radius:10px;border:1px solid var(--border)">
                                 </a>
                             <?php else: ?>
-                                <a href="<?= htmlspecialchars($notaUrl) ?>" target="_blank" rel="noopener" class="btn btn-sm btn-outline">Buka Arsip</a>
+                                <a href="<?= htmlspecialchars($notaUrl) ?>" target="_blank" rel="noopener" class="btn btn-sm btn-outline">Buka</a>
                             <?php endif; ?>
                         <?php else: ?>
                             <span class="text-muted">-</span>
                         <?php endif; ?>
                     </td>
-                    <td class="text-right" data-sort-value="<?= (int)$b['qty_masuk'] ?>">
-                        <?= number_format($b['qty_masuk']) ?> <?= htmlspecialchars($b['satuan']) ?>
-                        <div class="mobile-only-inline">Sisa: <?= number_format($b['qty_sisa']) ?></div>
+                    <td class="text-right fw-bold" data-sort-value="<?= $b['qty_masuk'] ?>">
+                        <?= number_format($b['qty_masuk']) ?> <span style="font-weight:400;color:var(--muted)"><?= htmlspecialchars($b['satuan']) ?></span>
+                        <div class="mobile-only-inline">Sisa: <span class="<?= (int)$b['qty_sisa'] > 0 ? 'text-success' : 'text-danger' ?>"><?= number_format($b['qty_sisa']) ?></span></div>
                     </td>
-                    <td class="text-right fw-bold <?= $b['qty_sisa'] == 0 ? 'text-muted' : '' ?> mobile-hide-col" data-sort-value="<?= (int)$b['qty_sisa'] ?>"><?= number_format($b['qty_sisa']) ?></td>
+                    <td class="text-right mobile-hide-col" data-sort-value="<?= $b['qty_sisa'] ?>">
+                        <span class="fw-bold <?= (int)$b['qty_sisa'] > 0 ? 'text-success' : 'text-danger' ?>"><?= number_format($b['qty_sisa']) ?></span>
+                    </td>
                     <td class="text-right mobile-hide-col" data-sort-value="<?= $b['harga_modal'] ?>"><?= formatRupiah($b['harga_modal']) ?></td>
-                    <td class="text-muted mobile-hide-col"><?= htmlspecialchars(truncate($b['keterangan'] ?? '-', 30)) ?></td>
-                    <td class="text-muted mobile-hide-col"><?= htmlspecialchars($b['created_by_name'] ?? '-') ?></td>
-                    <td class="text-center mobile-hide-col col-fit">
+                    <td class="text-muted mobile-hide-col"><?= htmlspecialchars($b['keterangan'] ?: '-') ?></td>
+                    <td class="text-muted mobile-hide-col"><?= htmlspecialchars($b['created_by_name'] ?: '-') ?></td>
+                    <td class="text-center mobile-hide-col">
                         <?php $isUsed = (int)$b['qty_sisa'] < (int)$b['qty_masuk']; ?>
                         <div class="btn-group">
                             <a href="<?= BASE_URL ?>/index.php?page=stock-in&action=edit&id=<?= $b['id'] ?>" class="btn btn-sm btn-outline">Edit</a>

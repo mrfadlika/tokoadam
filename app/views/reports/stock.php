@@ -25,16 +25,16 @@ $formatModalRange = static function ($min, $max) {
         <table class="table-compact-mobile" data-sortable>
             <thead>
                 <tr>
-                    <th class="mobile-hide-col" data-sort-key="kode">Kode</th>
+                    <th class="mobile-hide-col w-110" data-sort-key="kode">Kode</th>
                     <th data-sort-key="nama">Nama Barang</th>
-                    <th class="mobile-hide-col" data-sort-key="kategori">Kategori</th>
-                    <th class="mobile-hide-col">Satuan</th>
-                    <th class="text-center" data-sort-key="stok">Stok</th>
-                    <th class="text-center mobile-hide-col" data-sort-key="batch">Batch Aktif</th>
-                    <th class="text-right mobile-hide-col">Modal Aktif</th>
-                    <th class="text-right mobile-hide-col" data-sort-key="modal_terakhir">Modal Terakhir</th>
-                    <th class="text-center mobile-hide-col">Minimum</th>
-                    <th class="text-nowrap" data-sort-key="status">Status</th>
+                    <th class="mobile-hide-col w-100" data-sort-key="kategori">Kategori</th>
+                    <th class="mobile-hide-col w-80">Satuan</th>
+                    <th class="text-center w-80" data-sort-key="stok">Stok</th>
+                    <th class="text-center mobile-hide-col w-90" data-sort-key="batch">Batch Aktif</th>
+                    <th class="text-right mobile-hide-col w-140">Modal Aktif</th>
+                    <th class="text-right mobile-hide-col w-120" data-sort-key="modal_terakhir">Modal Terakhir</th>
+                    <th class="text-center mobile-hide-col w-90">Minimum</th>
+                    <th class="w-90" data-sort-key="status">Status</th>
                 </tr>
             </thead>
             <tbody>
@@ -55,7 +55,7 @@ $formatModalRange = static function ($min, $max) {
                         <td class="text-right mobile-hide-col"><?= $formatModalRange($s['harga_modal_min'], $s['harga_modal_max']) ?></td>
                         <td class="text-right mobile-hide-col" data-sort-value="<?= $s['harga_modal_terakhir'] !== null ? $s['harga_modal_terakhir'] : 0 ?>"><?= $s['harga_modal_terakhir'] !== null ? formatRupiah($s['harga_modal_terakhir']) : '-' ?></td>
                         <td class="text-center mobile-hide-col"><?= number_format((int)$s['stok_minimum']) ?></td>
-                        <td class="col-fit" data-sort-value="<?= $stok === 0 ? 0 : ($stok <= $s['stok_minimum'] ? 1 : 2) ?>">
+                        <td data-sort-value="<?= $stok === 0 ? 0 : ($stok <= $s['stok_minimum'] ? 1 : 2) ?>">
                             <?php if ($stok === 0): ?>
                                 <span class="badge badge-danger">Habis</span>
                             <?php elseif ($stok <= $s['stok_minimum']): ?>

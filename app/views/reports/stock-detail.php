@@ -82,6 +82,31 @@ $areaPoints = '';
 if (!empty($chartPoints)) {
     $areaPoints = $chartPoints[0]['x'] . ',' . ($chartHeight - $chartBottom) . ' ' . $linePoints . ' ' . $chartPoints[count($chartPoints) - 1]['x'] . ',' . ($chartHeight - $chartBottom);
 }
+
+$baseDetailQuery = [
+    'page' => 'reports',
+    'action' => 'stock_detail',
+    'id' => (int)$summary['id'],
+];
+
+$detailFilters = [
+    'supplier_id' => $stockSupplierId,
+    'stock_status' => $stockStatus,
+    'stock_date_from' => $stockDateFrom,
+    'stock_date_to' => $stockDateTo,
+    'customer_id' => $saleCustomerId,
+    'sale_date_from' => $saleDateFrom,
+    'sale_date_to' => $saleDateTo,
+];
+
+$buildDetailUrl = static function (array $params = []) use ($baseDetailQuery, $detailFilters) {
+    $query = array_merge($baseDetailQuery, ['group' => $params['group'] ?? 'day'], $detailFilters, $params);
+    $query = array_filter($query, static fn($value) => $value !== null && $value !== '');
+    return BASE_URL . '/index.php?' . http_build_query($query);
+};
+
+$resetDetailUrl = BASE_URL . '/index.php?' . http_build_query($baseDetailQuery + ['group' => $grouping]);
+$hasDetailFilters = $stockSupplierId || $stockStatus !== '' || $stockDateFrom !== '' || $stockDateTo !== '' || $saleCustomerId || $saleDateFrom !== '' || $saleDateTo !== '';
 ?>
 
 <div class="toolbar no-print">
@@ -149,9 +174,9 @@ if (!empty($chartPoints)) {
                 <p class="section-note">Gunakan filter day, month, atau year untuk melihat perubahan harga modal.</p>
             </div>
             <div class="segmented-control no-print">
-                <a href="<?= BASE_URL ?>/index.php?page=reports&action=stock_detail&id=<?= $summary['id'] ?>&group=day" class="segmented-link <?= $grouping === 'day' ? 'active' : '' ?>">Day</a>
-                <a href="<?= BASE_URL ?>/index.php?page=reports&action=stock_detail&id=<?= $summary['id'] ?>&group=month" class="segmented-link <?= $grouping === 'month' ? 'active' : '' ?>">Month</a>
-                <a href="<?= BASE_URL ?>/index.php?page=reports&action=stock_detail&id=<?= $summary['id'] ?>&group=year" class="segmented-link <?= $grouping === 'year' ? 'active' : '' ?>">Year</a>
+                <a href="<?= $buildDetailUrl(['group' => 'day']) ?>" class="segmented-link <?= $grouping === 'day' ? 'active' : '' ?>">Day</a>
+                <a href="<?= $buildDetailUrl(['group' => 'month']) ?>" class="segmented-link <?= $grouping === 'month' ? 'active' : '' ?>">Month</a>
+                <a href="<?= $buildDetailUrl(['group' => 'year']) ?>" class="segmented-link <?= $grouping === 'year' ? 'active' : '' ?>">Year</a>
             </div>
         </div>
         <div class="card-body">
@@ -249,6 +274,55 @@ if (!empty($chartPoints)) {
                 </tbody>
             </table>
         </div>
+    </div>
+</div>
+
+<div class="card mt-3 no-print">
+    <div class="card-header">
+        <div>
+            <h3>Filter Detail Stok</h3>
+            <p class="section-note">Filter ini hanya memengaruhi tabel riwayat barang masuk dan audit FIFO di bawah.</p>
+        </div>
+    </div>
+    <div class="card-body">
+        <form method="GET" class="filter-group">
+            <input type="hidden" name="page" value="reports">
+            <input type="hidden" name="action" value="stock_detail">
+            <input type="hidden" name="id" value="<?= (int)$summary['id'] ?>">
+            <input type="hidden" name="group" value="<?= htmlspecialchars($grouping) ?>">
+
+            <select name="supplier_id" class="form-control">
+                <option value="">Semua Supplier</option>
+                <?php foreach ($suppliers as $supplier): ?>
+                    <option value="<?= $supplier['id'] ?>" <?= (string)$stockSupplierId === (string)$supplier['id'] ? 'selected' : '' ?>><?= htmlspecialchars($supplier['nama_toko']) ?></option>
+                <?php endforeach; ?>
+            </select>
+
+            <select name="stock_status" class="form-control">
+                <option value="">Semua Status Batch</option>
+                <option value="utuh" <?= $stockStatus === 'utuh' ? 'selected' : '' ?>>Masih utuh</option>
+                <option value="sebagian" <?= $stockStatus === 'sebagian' ? 'selected' : '' ?>>Terpakai sebagian</option>
+                <option value="habis" <?= $stockStatus === 'habis' ? 'selected' : '' ?>>Habis terpakai</option>
+            </select>
+
+            <input type="date" name="stock_date_from" class="form-control" value="<?= htmlspecialchars($stockDateFrom) ?>" title="Tanggal masuk dari">
+            <input type="date" name="stock_date_to" class="form-control" value="<?= htmlspecialchars($stockDateTo) ?>" title="Tanggal masuk sampai">
+
+            <select name="customer_id" class="form-control">
+                <option value="">Semua Pelanggan</option>
+                <?php foreach ($customers as $customer): ?>
+                    <option value="<?= $customer['id'] ?>" <?= (string)$saleCustomerId === (string)$customer['id'] ? 'selected' : '' ?>><?= htmlspecialchars($customer['nama_toko']) ?></option>
+                <?php endforeach; ?>
+            </select>
+
+            <input type="date" name="sale_date_from" class="form-control" value="<?= htmlspecialchars($saleDateFrom) ?>" title="Tanggal jual dari">
+            <input type="date" name="sale_date_to" class="form-control" value="<?= htmlspecialchars($saleDateTo) ?>" title="Tanggal jual sampai">
+
+            <button type="submit" class="btn btn-outline">Filter</button>
+            <?php if ($hasDetailFilters): ?>
+                <a href="<?= $resetDetailUrl ?>" class="btn btn-outline">Reset</a>
+            <?php endif; ?>
+        </form>
     </div>
 </div>
 

@@ -10,11 +10,11 @@
             <thead>
                 <tr>
                     <th data-sort-key="nama">Nama</th>
-                    <th class="mobile-hide-col" data-sort-key="username">Username</th>
-                    <th data-sort-key="role">Role</th>
-                    <th data-sort-key="status">Status</th>
-                    <th class="mobile-hide-col" data-sort-key="dibuat">Dibuat</th>
-                    <th class="text-center mobile-hide-col">Aksi</th>
+                    <th class="mobile-hide-col w-120" data-sort-key="username">Username</th>
+                    <th class="w-90" data-sort-key="role">Role</th>
+                    <th class="w-90" data-sort-key="status">Status</th>
+                    <th class="mobile-hide-col w-110" data-sort-key="dibuat">Dibuat</th>
+                    <th class="text-center mobile-hide-col w-80">Aksi</th>
                 </tr>
             </thead>
             <tbody>

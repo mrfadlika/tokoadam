@@ -342,6 +342,8 @@ button, input, select, textarea { font: inherit; }
 }
 
 .content-area {
+    width: 100%;
+    max-width: 100%;
     padding: 4px 34px 34px;
     min-width: 0;
 }
@@ -352,6 +354,8 @@ button, input, select, textarea { font: inherit; }
 
 .card,
 .stat-card {
+    width: 100%;
+    max-width: 100%;
     border-radius: var(--radius-lg);
     border: 1px solid rgba(255, 255, 255, 0.72);
     background: var(--surface);
@@ -528,6 +532,12 @@ button, input, select, textarea { font: inherit; }
     gap: 12px;
 }
 
+td .btn-group {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 6px;
+}
+
 .hero-actions {
     position: relative;
     z-index: 1;
@@ -625,13 +635,21 @@ button, input, select, textarea { font: inherit; }
 }
 
 .table-responsive {
+    display: block;
     width: 100%;
     max-width: 100%;
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+    scroll-snap-type: x mandatory;
+}
+.table-responsive table th,
+.table-responsive table td {
+    scroll-snap-align: end;
 }
 
 .table-responsive > table {
+    width: 100%;
     min-width: 100%;
 }
 
@@ -647,7 +665,7 @@ table {
 }
 
 table th {
-    padding: 14px 16px;
+    padding: 12px 14px;
     font-size: 0.76rem;
     font-weight: 800;
     letter-spacing: 0.15em;
@@ -656,13 +674,68 @@ table th {
     border-bottom: 1px solid var(--line);
     background: rgba(255, 255, 255, 0.42);
     white-space: nowrap;
+    text-align: center !important;
 }
 
 table td {
-    padding: 16px;
+    padding: 12px 14px;
     border-bottom: 1px solid var(--line);
     vertical-align: middle;
-    overflow-wrap: normal;
+    word-break: break-word;
+    overflow-wrap: break-word;
+    white-space: normal;
+    text-align: center !important;
+}
+
+/* Helper class to fit table columns to their exact content size */
+/* Fixed column width utilities for strict layout */
+.w-40 { width: 40px; }
+.w-50 { width: 50px; }
+.w-60 { width: 60px; }
+.w-70 { width: 70px; }
+.w-80 { width: 80px; }
+.w-90 { width: 90px; }
+.w-100 { width: 100px; }
+.w-110 { width: 110px; }
+.w-120 { width: 120px; }
+.w-130 { width: 130px; }
+.w-140 { width: 140px; }
+.w-150 { width: 150px; }
+.w-160 { width: 160px; }
+.w-180 { width: 180px; }
+.w-200 { width: 200px; }
+
+/* Prevent wrapping in centered, right-aligned, and nowrap cells for tabular data protection */
+table td.text-right,
+table td.text-center,
+table th.text-right,
+table th.text-center,
+.text-nowrap {
+    white-space: nowrap !important;
+}
+
+/* Premium, subtle scrollbar for table responsive containers to improve horizontal scrolling visibility */
+.table-responsive::-webkit-scrollbar {
+    height: 8px;
+    width: 8px;
+}
+
+.table-responsive::-webkit-scrollbar-track {
+    background: rgba(24, 33, 39, 0.03);
+    border-radius: 99px;
+}
+
+.table-responsive::-webkit-scrollbar-thumb {
+    background: rgba(24, 33, 39, 0.16);
+    border-radius: 99px;
+    border: 2px solid transparent;
+    background-clip: padding-box;
+}
+
+.table-responsive::-webkit-scrollbar-thumb:hover {
+    background: rgba(24, 33, 39, 0.32);
+    border: 2px solid transparent;
+    background-clip: padding-box;
 }
 
 tbody tr:hover { background: rgba(248, 223, 210, 0.28); }
@@ -754,10 +827,7 @@ select.form-control { appearance: none; background-position: right 14px center; 
     white-space: nowrap !important;
 }
 
-.col-fit {
-    width: 1%;
-    white-space: nowrap !important;
-}
+
 
 .badge {
     display: inline-block;
@@ -1104,8 +1174,15 @@ select.form-control { appearance: none; background-position: right 14px center; 
 .gap-2 { gap: 16px; }
 .align-center { align-items: center; }
 .justify-between { justify-content: space-between; }
-.text-right { text-align: right; }
-.text-center { text-align: center; }
+.text-right { text-align: right !important; }
+.text-center { text-align: center !important; }
+.text-left { text-align: left !important; }
+
+/* Force table cells to center even if they have alignment classes */
+table th.text-right, table td.text-right,
+table th.text-left, table td.text-left {
+    text-align: center !important;
+}
 .text-nowrap { white-space: nowrap; }
 .text-danger { color: var(--danger); }
 .text-success { color: var(--success); }
@@ -1137,6 +1214,10 @@ select.form-control { appearance: none; background-position: right 14px center; 
 
     .content-area {
         padding: 4px 24px 28px;
+    }
+    
+    table th, table td {
+        padding: 10px 12px;
     }
 }
 
@@ -1171,6 +1252,10 @@ select.form-control { appearance: none; background-position: right 14px center; 
     }
 
     .stats-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    
+    table th, table td {
+        padding: 8px 10px;
+    }
 }
 
 /* ===== RESPONSIVE: 1024px (Tablet / Sidebar hidden) ===== */
@@ -1541,9 +1626,7 @@ select.form-control { appearance: none; background-position: right 14px center; 
 .table-responsive.compact-mode table.table-compact-mobile td {
     padding: 12px 10px;
     vertical-align: middle;
-    white-space: normal;
-    word-break: break-word;
-    overflow-wrap: anywhere;
+    white-space: nowrap;
 }
 
 .table-responsive.compact-mode table.table-compact-mobile th.mobile-hide-col,

@@ -50,13 +50,19 @@
 <div class="card">
     <div class="card-header"><h3>Penjualan per Pelanggan</h3></div>
     <div class="table-responsive">
-        <table>
-            <thead><tr><th>Pelanggan</th><th class="text-center">Transaksi</th><th class="text-right">Total Nominal</th></tr></thead>
+        <table data-sortable>
+            <thead>
+                <tr>
+                    <th data-sort-key="pelanggan">Pelanggan</th>
+                    <th class="text-center w-120" data-sort-key="transaksi">Transaksi</th>
+                    <th class="text-right w-150" data-sort-key="nominal">Total Nominal</th>
+                </tr>
+            </thead>
             <tbody>
                 <?php foreach ($perCustomer as $pc): ?>
                 <tr>
                     <td class="fw-bold"><?= htmlspecialchars($pc['nama_toko']) ?></td>
-                    <td class="text-center"><?= $pc['jumlah_transaksi'] ?></td>
+                    <td class="text-center"><?= number_format($pc['jumlah_transaksi']) ?></td>
                     <td class="text-right fw-bold"><?= formatRupiah($pc['total_nominal']) ?></td>
                 </tr>
                 <?php endforeach; ?>

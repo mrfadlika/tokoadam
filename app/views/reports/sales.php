@@ -53,7 +53,7 @@
     <div class="card-header"><h3>Rekap per Pelanggan</h3></div>
     <div class="table-responsive">
         <table data-sortable>
-            <thead><tr><th data-sort-key="pelanggan">Pelanggan</th><th class="text-center" data-sort-key="transaksi">Jml Transaksi</th><th class="text-right" data-sort-key="item">Total Item</th><th class="text-right" data-sort-key="nominal"><?= $isProductFiltered ? 'Nominal Produk' : 'Total Nominal' ?></th></tr></thead>
+            <thead><tr><th data-sort-key="pelanggan">Pelanggan</th><th class="text-center w-130" data-sort-key="transaksi">Jml Transaksi</th><th class="text-right w-120" data-sort-key="item">Total Item</th><th class="text-right w-150" data-sort-key="nominal"><?= $isProductFiltered ? 'Nominal Produk' : 'Total Nominal' ?></th></tr></thead>
             <tbody>
                 <?php foreach ($perCustomer as $pc): ?>
                 <tr>
@@ -83,12 +83,12 @@
         <table class="table-compact-mobile" data-sortable>
             <thead>
                 <tr>
-                    <th data-sort-key="nota">No. Nota</th>
-                    <th class="mobile-hide-col" data-sort-key="tanggal">Tanggal</th>
+                    <th class="w-140" data-sort-key="nota">No. Nota</th>
+                    <th class="mobile-hide-col w-110" data-sort-key="tanggal">Tanggal</th>
                     <th class="mobile-hide-col" data-sort-key="pelanggan">Pelanggan</th>
-                    <th class="text-right mobile-hide-col" data-sort-key="qty">Qty Item</th>
-                    <th class="text-right" data-sort-key="nominal"><?= $isProductFiltered ? 'Nominal Produk' : 'Total Nominal' ?></th>
-                    <th class="mobile-hide-col">User</th>
+                    <th class="text-right mobile-hide-col w-100" data-sort-key="qty">Qty Item</th>
+                    <th class="text-right w-150" data-sort-key="nominal"><?= $isProductFiltered ? 'Nominal Produk' : 'Total Nominal' ?></th>
+                    <th class="mobile-hide-col w-110">User</th>
                 </tr>
             </thead>
             <tbody>

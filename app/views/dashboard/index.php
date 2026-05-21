@@ -93,14 +93,14 @@
             <a href="<?= BASE_URL ?>/index.php?page=sales" class="btn btn-sm btn-outline">Lihat Semua</a>
         </div>
         <div class="table-responsive">
-            <table>
+            <table data-sortable>
                 <thead>
                     <tr>
-                        <th>No. Nota</th>
-                        <th>Pelanggan</th>
-                        <th class="text-right">Total</th>
-                        <th class="text-center text-nowrap">Status</th>
-                        <th>Waktu</th>
+                        <th class="w-140" data-sort-key="nota">No. Nota</th>
+                        <th data-sort-key="pelanggan">Pelanggan</th>
+                        <th class="text-right w-130" data-sort-key="total">Total</th>
+                        <th class="text-center text-nowrap w-90" data-sort-key="status">Status</th>
+                        <th class="w-100" data-sort-key="waktu">Waktu</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -110,14 +110,14 @@
                         <tr>
                             <td><span class="font-mono"><?= $sale['nomor_transaksi'] ?></span></td>
                             <td><?= htmlspecialchars($sale['nama_toko']) ?></td>
-                            <td class="text-right fw-bold text-nowrap"><?= formatRupiah($sale['total']) ?></td>
-                            <td class="text-center col-fit">
-                                <?php $isLunas = ($sale['status_bayar'] ?? 'belum_lunas') === 'lunas'; ?>
+                            <td class="text-right fw-bold text-nowrap" data-sort-value="<?= $sale['total'] ?>"><?= formatRupiah($sale['total']) ?></td>
+                            <?php $isLunas = ($sale['status_bayar'] ?? 'belum_lunas') === 'lunas'; ?>
+                            <td class="text-center" data-sort-value="<?= $isLunas ? 1 : 0 ?>">
                                 <span class="badge <?= $isLunas ? 'badge-success' : 'badge-warning' ?>">
                                     <?= $isLunas ? 'Lunas' : 'Pending' ?>
                                 </span>
                             </td>
-                            <td class="text-muted"><?= timeAgo($sale['created_at']) ?></td>
+                            <td class="text-muted" data-sort-value="<?= strtotime($sale['created_at']) ?>"><?= timeAgo($sale['created_at']) ?></td>
                         </tr>
                     <?php endforeach; endif; ?>
                 </tbody>
@@ -134,13 +134,13 @@
             <a href="<?= BASE_URL ?>/index.php?page=reports&action=stock" class="btn btn-sm btn-outline">Detail Stok</a>
         </div>
         <div class="table-responsive">
-            <table>
+            <table data-sortable>
                 <thead>
                     <tr>
-                        <th>Barang</th>
-                        <th class="text-center">Stok</th>
-                        <th class="text-center">Minimum</th>
-                        <th>Status</th>
+                        <th data-sort-key="barang">Barang</th>
+                        <th class="text-center w-80" data-sort-key="stok">Stok</th>
+                        <th class="text-center w-80" data-sort-key="minimum">Minimum</th>
+                        <th class="w-90" data-sort-key="status">Status</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -152,9 +152,9 @@
                                 <div class="fw-bold"><?= htmlspecialchars($item['nama_barang']) ?></div>
                                 <div class="text-muted" style="font-size:0.82rem"><?= $item['kode_barang'] ?></div>
                             </td>
-                            <td class="text-center fw-bold <?= $item['stok_total'] == 0 ? 'text-danger' : 'text-warning' ?>"><?= $item['stok_total'] ?></td>
-                            <td class="text-center"><?= $item['stok_minimum'] ?></td>
-                            <td>
+                            <td class="text-center fw-bold <?= $item['stok_total'] == 0 ? 'text-danger' : 'text-warning' ?>" data-sort-value="<?= $item['stok_total'] ?>"><?= $item['stok_total'] ?></td>
+                            <td class="text-center" data-sort-value="<?= $item['stok_minimum'] ?>"><?= $item['stok_minimum'] ?></td>
+                            <td data-sort-value="<?= $item['stok_total'] ?>">
                                 <?php if ($item['stok_total'] == 0): ?>
                                     <span class="badge badge-danger">Habis</span>
                                 <?php else: ?>
@@ -178,20 +178,20 @@
         </div>
     </div>
     <div class="table-responsive">
-        <table>
+        <table data-sortable>
             <thead>
                 <tr>
-                    <th>Pelanggan</th>
-                    <th class="text-center">Jumlah Transaksi</th>
-                    <th class="text-right">Total Belanja</th>
+                    <th data-sort-key="pelanggan">Pelanggan</th>
+                    <th class="text-center w-150" data-sort-key="transaksi">Jumlah Transaksi</th>
+                    <th class="text-right w-150" data-sort-key="total">Total Belanja</th>
                 </tr>
             </thead>
             <tbody>
                 <?php foreach ($data['topCustomers'] as $c): ?>
                 <tr>
                     <td class="fw-bold"><?= htmlspecialchars($c['nama_toko']) ?></td>
-                    <td class="text-center"><?= $c['jumlah_transaksi'] ?></td>
-                    <td class="text-right fw-bold"><?= formatRupiah($c['total_belanja']) ?></td>
+                    <td class="text-center" data-sort-value="<?= $c['jumlah_transaksi'] ?>"><?= $c['jumlah_transaksi'] ?></td>
+                    <td class="text-right fw-bold" data-sort-value="<?= $c['total_belanja'] ?>"><?= formatRupiah($c['total_belanja']) ?></td>
                 </tr>
                 <?php endforeach; ?>
             </tbody>

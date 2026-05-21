@@ -21,13 +21,13 @@
         <table class="table-compact-mobile" data-sortable>
             <thead>
                 <tr>
-                    <th data-sort-key="nota">No. Nota</th>
-                    <th class="mobile-hide-col" data-sort-key="tanggal">Tanggal</th>
+                    <th class="w-140" data-sort-key="nota">No. Nota</th>
+                    <th class="mobile-hide-col w-110" data-sort-key="tanggal">Tanggal</th>
                     <th class="mobile-hide-col" data-sort-key="pelanggan">Pelanggan</th>
-                    <th class="text-right" data-sort-key="total">Total</th>
-                    <th class="text-center mobile-hide-col text-nowrap" data-sort-key="status">Status Pembayaran</th>
-                    <th class="mobile-hide-col">User</th>
-                    <th class="text-center mobile-hide-col">Aksi</th>
+                    <th class="text-right w-130" data-sort-key="total">Total</th>
+                    <th class="text-center mobile-hide-col w-120" data-sort-key="status">Status Pembayaran</th>
+                    <th class="mobile-hide-col w-100">User</th>
+                    <th class="text-center mobile-hide-col w-90">Aksi</th>
                 </tr>
             </thead>
             <tbody>
@@ -42,7 +42,7 @@
                     <td class="text-nowrap mobile-hide-col" data-sort-value="<?= $s['tanggal_transaksi'] ?>"><?= formatDate($s['tanggal_transaksi']) ?></td>
                     <td class="fw-bold mobile-hide-col"><?= htmlspecialchars($s['nama_toko']) ?></td>
                     <td class="text-right fw-bold" data-sort-value="<?= $s['total'] ?>"><?= formatRupiah($s['total']) ?></td>
-                    <td class="text-center mobile-hide-col col-fit" data-sort-value="<?= $s['status_bayar'] ?? 'belum_lunas' ?>">
+                    <td class="text-center mobile-hide-col" data-sort-value="<?= $s['status_bayar'] ?? 'belum_lunas' ?>">
                         <?php $isLunas = ($s['status_bayar'] ?? 'belum_lunas') === 'lunas'; ?>
                         <span class="badge <?= $isLunas ? 'badge-success' : 'badge-warning' ?>">
                             <?= $isLunas ? '✓ Lunas' : '○ Belum Lunas' ?>

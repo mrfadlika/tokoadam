@@ -13,15 +13,15 @@
         <table class="table-compact-mobile" data-sortable>
             <thead>
                 <tr>
-                    <th class="mobile-hide-col">Foto</th>
-                    <th class="mobile-hide-col" data-sort-key="kode">Kode</th>
+                    <th class="mobile-hide-col w-70">Foto</th>
+                    <th class="mobile-hide-col w-120" data-sort-key="kode">Kode</th>
                     <th data-sort-key="nama">Nama Barang</th>
-                    <th class="mobile-hide-col" data-sort-key="kategori">Kategori</th>
-                    <th class="mobile-hide-col">Satuan</th>
-                    <th class="text-right" data-sort-key="harga">Harga Jual</th>
-                    <th class="text-center" data-sort-key="stok">Stok</th>
-                    <th class="mobile-hide-col">Status</th>
-                    <th class="text-center mobile-hide-col">Aksi</th>
+                    <th class="mobile-hide-col w-110" data-sort-key="kategori">Kategori</th>
+                    <th class="mobile-hide-col w-80">Satuan</th>
+                    <th class="text-right w-130" data-sort-key="harga">Harga Jual</th>
+                    <th class="text-center w-80" data-sort-key="stok">Stok</th>
+                    <th class="mobile-hide-col w-100">Status</th>
+                    <th class="text-center mobile-hide-col w-80">Aksi</th>
                 </tr>
             </thead>
             <tbody>

@@ -8,8 +8,8 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="<?= BASE_URL ?>/public/assets/css/style.css">
-    <link rel="stylesheet" href="<?= BASE_URL ?>/public/assets/css/print.css">
+    <link rel="stylesheet" href="<?= BASE_URL ?>/public/assets/css/style.css?v=<?= file_exists(ROOT_PATH . '/public/assets/css/style.css') ? filemtime(ROOT_PATH . '/public/assets/css/style.css') : APP_VERSION ?>">
+    <link rel="stylesheet" href="<?= BASE_URL ?>/public/assets/css/print.css?v=<?= file_exists(ROOT_PATH . '/public/assets/css/print.css') ? filemtime(ROOT_PATH . '/public/assets/css/print.css') : APP_VERSION ?>">
 </head>
 <?php
 $pageTitle = $pageTitle ?? 'Dashboard';
@@ -151,8 +151,8 @@ $icon = static function (string $name): string {
         </div>
     </div>
 
-    <script src="<?= BASE_URL ?>/public/assets/js/app.js"></script>
-    <script src="<?= BASE_URL ?>/public/assets/js/sortable.js"></script>
+    <script src="<?= BASE_URL ?>/public/assets/js/app.js?v=<?= file_exists(ROOT_PATH . '/public/assets/js/app.js') ? filemtime(ROOT_PATH . '/public/assets/js/app.js') : APP_VERSION ?>"></script>
+    <script src="<?= BASE_URL ?>/public/assets/js/sortable.js?v=<?= file_exists(ROOT_PATH . '/public/assets/js/sortable.js') ? filemtime(ROOT_PATH . '/public/assets/js/sortable.js') : APP_VERSION ?>"></script>
     <?php if (isset($extraJs)): ?>
         <script src="<?= BASE_URL ?>/public/assets/js/<?= $extraJs ?>"></script>
     <?php endif; ?>

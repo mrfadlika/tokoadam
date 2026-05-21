@@ -131,7 +131,34 @@ class Report {
         return $stmt->fetchAll();
     }
 
-    public function getProductStockHistory($productId) {
+    public function getProductStockHistory($productId, $filters = []) {
+        $where = "WHERE sb.product_id = ?";
+        $params = [$productId];
+
+        if (!empty($filters['supplier_id'])) {
+            $where .= " AND sb.supplier_id = ?";
+            $params[] = $filters['supplier_id'];
+        }
+
+        if (!empty($filters['date_from'])) {
+            $where .= " AND sb.tanggal_masuk >= ?";
+            $params[] = $filters['date_from'];
+        }
+
+        if (!empty($filters['date_to'])) {
+            $where .= " AND sb.tanggal_masuk <= ?";
+            $params[] = $filters['date_to'];
+        }
+
+        $status = $filters['status'] ?? '';
+        if ($status === 'utuh') {
+            $where .= " AND sb.qty_sisa = sb.qty_masuk";
+        } elseif ($status === 'sebagian') {
+            $where .= " AND sb.qty_sisa > 0 AND sb.qty_sisa < sb.qty_masuk";
+        } elseif ($status === 'habis') {
+            $where .= " AND sb.qty_sisa = 0";
+        }
+
         $stmt = $this->db->prepare(
             "SELECT
                 sb.*,
@@ -141,10 +168,10 @@ class Report {
              FROM stock_batches sb
              LEFT JOIN users u ON u.id = sb.created_by
              LEFT JOIN customers c ON c.id = sb.supplier_id
-             WHERE sb.product_id = ?
+             $where
              ORDER BY sb.tanggal_masuk DESC, sb.id DESC"
         );
-        $stmt->execute([$productId]);
+        $stmt->execute($params);
         return $stmt->fetchAll();
     }
 
@@ -183,7 +210,25 @@ class Report {
         return $stmt->fetchAll();
     }
 
-    public function getProductFifoUsage($productId) {
+    public function getProductFifoUsage($productId, $filters = []) {
+        $where = "WHERE si.product_id = ? AND s.status_bayar = 'lunas'";
+        $params = [$productId];
+
+        if (!empty($filters['customer_id'])) {
+            $where .= " AND s.customer_id = ?";
+            $params[] = $filters['customer_id'];
+        }
+
+        if (!empty($filters['date_from'])) {
+            $where .= " AND s.tanggal_transaksi >= ?";
+            $params[] = $filters['date_from'];
+        }
+
+        if (!empty($filters['date_to'])) {
+            $where .= " AND s.tanggal_transaksi <= ?";
+            $params[] = $filters['date_to'];
+        }
+
         $stmt = $this->db->prepare(
             "SELECT
                 s.id as sale_id,
@@ -202,10 +247,10 @@ class Report {
              JOIN sales s ON s.id = si.sale_id
              JOIN customers c ON c.id = s.customer_id
              JOIN stock_batches sb ON sb.id = sif.stock_batch_id
-             WHERE si.product_id = ? AND s.status_bayar = 'lunas'
+             $where
              ORDER BY s.tanggal_transaksi ASC, s.id ASC, sb.tanggal_masuk ASC, sif.id ASC"
         );
-        $stmt->execute([$productId]);
+        $stmt->execute($params);
         return $stmt->fetchAll();
     }
     

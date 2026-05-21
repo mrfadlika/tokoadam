@@ -24,13 +24,28 @@ document.addEventListener('DOMContentLoaded', () => {
             const indicator = document.createElement('span');
             indicator.className = 'sort-indicator';
             
+            // Defensive design: apply inline styling to prevent gigantic layout breaking arrow sizes if CSS fails to load
+            indicator.style.display = 'inline-flex';
+            indicator.style.flexDirection = 'column';
+            indicator.style.alignItems = 'center';
+            indicator.style.justifyContent = 'center';
+            indicator.style.position = 'absolute';
+            indicator.style.right = '10px';
+            indicator.style.top = '50%';
+            indicator.style.transform = 'translateY(-50%)';
+            indicator.style.opacity = '0.3';
+            indicator.style.transition = 'opacity 0.2s';
+            indicator.style.width = '14px';
+            indicator.style.height = '14px';
+            indicator.style.color = 'currentColor';
+            
             // SVG-based arrows for premium look matching the system style
             indicator.innerHTML = `
-                <svg class="arrow arrow-up" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <svg class="arrow arrow-up" width="8" height="8" style="width: 8px; height: 8px; margin-bottom: -1px; transition: transform 0.2s, stroke 0.2s;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                     <line x1="12" y1="19" x2="12" y2="5"></line>
                     <polyline points="5 12 12 5 19 12"></polyline>
                 </svg>
-                <svg class="arrow arrow-down" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <svg class="arrow arrow-down" width="8" height="8" style="width: 8px; height: 8px; margin-top: -1px; transition: transform 0.2s, stroke 0.2s;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                     <line x1="12" y1="5" x2="12" y2="19"></line>
                     <polyline points="19 12 12 19 5 12"></polyline>
                 </svg>

@@ -354,7 +354,7 @@ function updateCompactTableMode(table) {
     }
 
     wrapper.classList.remove('compact-mode');
-    const shouldCompact = window.innerWidth <= 1280 || table.scrollWidth > wrapper.clientWidth + 4;
+    const shouldCompact = window.innerWidth <= 1024;
     wrapper.classList.toggle('compact-mode', shouldCompact);
 }
 

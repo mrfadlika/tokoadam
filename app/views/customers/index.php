@@ -18,14 +18,14 @@
         <table class="table-compact-mobile" data-sortable>
             <thead>
                 <tr>
-                    <th data-sort-key="tipe">Tipe</th>
+                    <th class="w-100" data-sort-key="tipe">Tipe</th>
                     <th data-sort-key="nama">Nama</th>
-                    <th class="mobile-hide-col" data-sort-key="pic">PIC</th>
-                    <th data-sort-key="telepon">Telepon</th>
+                    <th class="mobile-hide-col w-120" data-sort-key="pic">PIC</th>
+                    <th class="w-130" data-sort-key="telepon">Telepon</th>
                     <th class="mobile-hide-col">Alamat</th>
-                    <th class="text-center mobile-hide-col" data-sort-key="aktivitas">Aktivitas</th>
-                    <th class="mobile-hide-col" data-sort-key="terakhir">Terakhir</th>
-                    <th class="text-center mobile-hide-col">Aksi</th>
+                    <th class="text-center mobile-hide-col w-90" data-sort-key="aktivitas">Aktivitas</th>
+                    <th class="mobile-hide-col w-110" data-sort-key="terakhir">Terakhir</th>
+                    <th class="text-center mobile-hide-col w-80">Aksi</th>
                 </tr>
             </thead>
             <tbody>
