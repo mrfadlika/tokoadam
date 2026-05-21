@@ -89,24 +89,11 @@ $baseDetailQuery = [
     'id' => (int)$summary['id'],
 ];
 
-$detailFilters = [
-    'supplier_id' => $stockSupplierId,
-    'stock_status' => $stockStatus,
-    'stock_date_from' => $stockDateFrom,
-    'stock_date_to' => $stockDateTo,
-    'customer_id' => $saleCustomerId,
-    'sale_date_from' => $saleDateFrom,
-    'sale_date_to' => $saleDateTo,
-];
-
-$buildDetailUrl = static function (array $params = []) use ($baseDetailQuery, $detailFilters) {
-    $query = array_merge($baseDetailQuery, ['group' => $params['group'] ?? 'day'], $detailFilters, $params);
+$buildDetailUrl = static function (array $params = []) use ($baseDetailQuery) {
+    $query = array_merge($baseDetailQuery, ['group' => $params['group'] ?? 'day'], $params);
     $query = array_filter($query, static fn($value) => $value !== null && $value !== '');
     return BASE_URL . '/index.php?' . http_build_query($query);
 };
-
-$resetDetailUrl = BASE_URL . '/index.php?' . http_build_query($baseDetailQuery + ['group' => $grouping]);
-$hasDetailFilters = $stockSupplierId || $stockStatus !== '' || $stockDateFrom !== '' || $stockDateTo !== '' || $saleCustomerId || $saleDateFrom !== '' || $saleDateTo !== '';
 ?>
 
 <div class="toolbar no-print">
@@ -243,86 +230,38 @@ $hasDetailFilters = $stockSupplierId || $stockStatus !== '' || $stockDateFrom !=
         <div class="card-header">
             <div>
                 <h3>Batch FIFO Aktif</h3>
-                <p class="section-note">Baris paling atas adalah batch yang akan keluar terlebih dahulu pada transaksi berikutnya.</p>
+                <p class="section-note">Secara default, urutan mengikuti FIFO; batch dengan label FIFO #1 adalah yang akan keluar terlebih dahulu pada transaksi berikutnya.</p>
             </div>
         </div>
         <div class="table-responsive">
-            <table class="table-compact-mobile">
+            <table class="table-compact-mobile" data-sortable>
                 <thead>
-                    <tr><th>Urutan</th><th class="mobile-hide-col">Tanggal Masuk</th><th class="text-right mobile-hide-col">Qty Masuk</th><th class="text-right">Sisa</th><th class="text-right mobile-hide-col">Harga Modal</th><th class="text-right mobile-hide-col">Nilai Sisa</th></tr>
+                    <tr><th data-sort-key="urutan">Urutan</th><th class="mobile-hide-col" data-sort-key="tanggal_masuk">Tanggal Masuk</th><th class="text-right mobile-hide-col" data-sort-key="qty_masuk">Qty Masuk</th><th class="text-right" data-sort-key="sisa">Sisa</th><th class="text-right mobile-hide-col" data-sort-key="harga_modal">Harga Modal</th><th class="text-right mobile-hide-col" data-sort-key="nilai_sisa">Nilai Sisa</th></tr>
                 </thead>
                 <tbody>
                     <?php if (empty($activeBatches)): ?>
                         <tr><td colspan="6"><div class="empty-state"><div class="empty-icon">0</div><h4>Tidak ada batch aktif</h4><p>Barang ini sedang tidak memiliki stok tersisa.</p></div></td></tr>
                     <?php else: foreach ($activeBatches as $index => $batch): ?>
                         <tr>
-                            <td>
+                            <td data-sort-value="<?= $index + 1 ?>">
                                 <?php if ($index === 0): ?>
-                                    <span class="badge badge-success">Keluar berikutnya</span>
+                                    <span class="badge badge-success">FIFO #<?= $index + 1 ?></span>
+                                    <div class="table-note">Keluar berikutnya</div>
                                 <?php else: ?>
-                                    <span class="badge badge-info">Antrian <?= $index + 1 ?></span>
+                                    <span class="badge badge-info">FIFO #<?= $index + 1 ?></span>
                                 <?php endif; ?>
                                 <div class="mobile-only-inline"><?= formatDate($batch['tanggal_masuk']) ?></div>
                             </td>
-                            <td class="text-nowrap mobile-hide-col"><?= formatDate($batch['tanggal_masuk']) ?></td>
-                            <td class="text-right mobile-hide-col"><?= number_format($batch['qty_masuk']) ?> <?= htmlspecialchars($summary['satuan']) ?></td>
-                            <td class="text-right fw-bold"><?= number_format($batch['qty_sisa']) ?></td>
-                            <td class="text-right mobile-hide-col"><?= formatRupiah($batch['harga_modal']) ?></td>
-                            <td class="text-right mobile-hide-col"><?= formatRupiah($batch['qty_sisa'] * $batch['harga_modal']) ?></td>
+                            <td class="text-nowrap mobile-hide-col" data-sort-value="<?= htmlspecialchars($batch['tanggal_masuk']) ?>"><?= formatDate($batch['tanggal_masuk']) ?></td>
+                            <td class="text-right mobile-hide-col" data-sort-value="<?= (float)$batch['qty_masuk'] ?>"><?= number_format($batch['qty_masuk']) ?> <?= htmlspecialchars($summary['satuan']) ?></td>
+                            <td class="text-right fw-bold" data-sort-value="<?= (float)$batch['qty_sisa'] ?>"><?= number_format($batch['qty_sisa']) ?></td>
+                            <td class="text-right mobile-hide-col" data-sort-value="<?= (float)$batch['harga_modal'] ?>"><?= formatRupiah($batch['harga_modal']) ?></td>
+                            <td class="text-right mobile-hide-col" data-sort-value="<?= (float)$batch['qty_sisa'] * (float)$batch['harga_modal'] ?>"><?= formatRupiah($batch['qty_sisa'] * $batch['harga_modal']) ?></td>
                         </tr>
                     <?php endforeach; endif; ?>
                 </tbody>
             </table>
         </div>
-    </div>
-</div>
-
-<div class="card mt-3 no-print">
-    <div class="card-header">
-        <div>
-            <h3>Filter Detail Stok</h3>
-            <p class="section-note">Filter ini hanya memengaruhi tabel riwayat barang masuk dan audit FIFO di bawah.</p>
-        </div>
-    </div>
-    <div class="card-body">
-        <form method="GET" class="filter-group">
-            <input type="hidden" name="page" value="reports">
-            <input type="hidden" name="action" value="stock_detail">
-            <input type="hidden" name="id" value="<?= (int)$summary['id'] ?>">
-            <input type="hidden" name="group" value="<?= htmlspecialchars($grouping) ?>">
-
-            <select name="supplier_id" class="form-control">
-                <option value="">Semua Supplier</option>
-                <?php foreach ($suppliers as $supplier): ?>
-                    <option value="<?= $supplier['id'] ?>" <?= (string)$stockSupplierId === (string)$supplier['id'] ? 'selected' : '' ?>><?= htmlspecialchars($supplier['nama_toko']) ?></option>
-                <?php endforeach; ?>
-            </select>
-
-            <select name="stock_status" class="form-control">
-                <option value="">Semua Status Batch</option>
-                <option value="utuh" <?= $stockStatus === 'utuh' ? 'selected' : '' ?>>Masih utuh</option>
-                <option value="sebagian" <?= $stockStatus === 'sebagian' ? 'selected' : '' ?>>Terpakai sebagian</option>
-                <option value="habis" <?= $stockStatus === 'habis' ? 'selected' : '' ?>>Habis terpakai</option>
-            </select>
-
-            <input type="date" name="stock_date_from" class="form-control" value="<?= htmlspecialchars($stockDateFrom) ?>" title="Tanggal masuk dari">
-            <input type="date" name="stock_date_to" class="form-control" value="<?= htmlspecialchars($stockDateTo) ?>" title="Tanggal masuk sampai">
-
-            <select name="customer_id" class="form-control">
-                <option value="">Semua Pelanggan</option>
-                <?php foreach ($customers as $customer): ?>
-                    <option value="<?= $customer['id'] ?>" <?= (string)$saleCustomerId === (string)$customer['id'] ? 'selected' : '' ?>><?= htmlspecialchars($customer['nama_toko']) ?></option>
-                <?php endforeach; ?>
-            </select>
-
-            <input type="date" name="sale_date_from" class="form-control" value="<?= htmlspecialchars($saleDateFrom) ?>" title="Tanggal jual dari">
-            <input type="date" name="sale_date_to" class="form-control" value="<?= htmlspecialchars($saleDateTo) ?>" title="Tanggal jual sampai">
-
-            <button type="submit" class="btn btn-outline">Filter</button>
-            <?php if ($hasDetailFilters): ?>
-                <a href="<?= $resetDetailUrl ?>" class="btn btn-outline">Reset</a>
-            <?php endif; ?>
-        </form>
     </div>
 </div>
 
@@ -334,16 +273,17 @@ $hasDetailFilters = $stockSupplierId || $stockStatus !== '' || $stockDateFrom !=
         </div>
     </div>
     <div class="table-responsive">
-        <table class="table-compact-mobile">
+        <table class="table-compact-mobile" data-sortable>
             <thead>
-                <tr><th>Tanggal</th><th>Supplier</th><th class="mobile-hide-col">No. Nota</th><th class="mobile-hide-col">Arsip Nota</th><th class="text-right">Qty Masuk</th><th class="text-right mobile-hide-col">Qty Keluar</th><th class="text-right mobile-hide-col">Sisa</th><th class="text-right mobile-hide-col">Harga Modal</th><th class="mobile-hide-col">Status</th><th class="mobile-hide-col">Keterangan</th><th class="mobile-hide-col">Oleh</th></tr>
+                <tr><th data-sort-key="tanggal">Tanggal</th><th data-sort-key="supplier">Supplier</th><th class="mobile-hide-col" data-sort-key="nota">No. Nota</th><th class="mobile-hide-col">Arsip Nota</th><th class="text-right" data-sort-key="qty_masuk">Qty Masuk</th><th class="text-right mobile-hide-col" data-sort-key="qty_keluar">Qty Keluar</th><th class="text-right mobile-hide-col" data-sort-key="sisa">Sisa</th><th class="text-right mobile-hide-col" data-sort-key="harga_modal">Harga Modal</th><th class="mobile-hide-col" data-sort-key="status">Status</th><th class="mobile-hide-col" data-sort-key="keterangan">Keterangan</th><th class="mobile-hide-col" data-sort-key="oleh">Oleh</th></tr>
             </thead>
             <tbody>
                 <?php if (empty($stockHistory)): ?>
                     <tr><td colspan="11"><div class="empty-state"><div class="empty-icon">IN</div><h4>Belum ada histori barang masuk</h4></div></td></tr>
                 <?php else: foreach ($stockHistory as $row): ?>
+                    <?php $statusRank = (int)$row['qty_sisa'] === 0 ? 0 : ((int)$row['qty_sisa'] === (int)$row['qty_masuk'] ? 2 : 1); ?>
                     <tr>
-                        <td class="text-nowrap"><?= formatDate($row['tanggal_masuk']) ?></td>
+                        <td class="text-nowrap" data-sort-value="<?= htmlspecialchars($row['tanggal_masuk']) ?>"><?= formatDate($row['tanggal_masuk']) ?></td>
                         <td><?= htmlspecialchars($row['supplier_name'] ?? '-') ?></td>
                         <td class="mobile-hide-col"><?= htmlspecialchars($row['nomor_nota'] ?? '-') ?></td>
                         <td class="mobile-hide-col">
@@ -364,17 +304,17 @@ $hasDetailFilters = $stockSupplierId || $stockStatus !== '' || $stockDateFrom !=
                                 <span class="text-muted">-</span>
                             <?php endif; ?>
                         </td>
-                        <td class="text-right">
+                        <td class="text-right" data-sort-value="<?= (float)$row['qty_masuk'] ?>">
                             <?= number_format($row['qty_masuk']) ?> <?= htmlspecialchars($summary['satuan']) ?>
                             <div class="mobile-only-inline">Sisa: <?= number_format($row['qty_sisa']) ?></div>
                         </td>
-                        <td class="text-right mobile-hide-col"><?= number_format($row['qty_keluar']) ?></td>
-                        <td class="text-right fw-bold mobile-hide-col"><?= number_format($row['qty_sisa']) ?></td>
-                        <td class="text-right mobile-hide-col"><?= formatRupiah($row['harga_modal']) ?></td>
-                        <td class="mobile-hide-col">
-                            <?php if ((int)$row['qty_sisa'] === 0): ?>
+                        <td class="text-right mobile-hide-col" data-sort-value="<?= (float)$row['qty_keluar'] ?>"><?= number_format($row['qty_keluar']) ?></td>
+                        <td class="text-right fw-bold mobile-hide-col" data-sort-value="<?= (float)$row['qty_sisa'] ?>"><?= number_format($row['qty_sisa']) ?></td>
+                        <td class="text-right mobile-hide-col" data-sort-value="<?= (float)$row['harga_modal'] ?>"><?= formatRupiah($row['harga_modal']) ?></td>
+                        <td class="mobile-hide-col" data-sort-value="<?= $statusRank ?>">
+                            <?php if ($statusRank === 0): ?>
                                 <span class="badge badge-neutral">Habis terpakai</span>
-                            <?php elseif ((int)$row['qty_sisa'] === (int)$row['qty_masuk']): ?>
+                            <?php elseif ($statusRank === 2): ?>
                                 <span class="badge badge-success">Masih utuh</span>
                             <?php else: ?>
                                 <span class="badge badge-warning">Terpakai sebagian</span>
@@ -397,25 +337,25 @@ $hasDetailFilters = $stockSupplierId || $stockStatus !== '' || $stockDateFrom !=
         </div>
     </div>
     <div class="table-responsive">
-        <table class="table-compact-mobile">
+        <table class="table-compact-mobile" data-sortable>
             <thead>
-                <tr><th class="mobile-hide-col">Tanggal Jual</th><th>Nota</th><th class="mobile-hide-col">Pelanggan</th><th class="mobile-hide-col">Batch Asal</th><th class="text-right">Qty Keluar</th><th class="text-right mobile-hide-col">Modal Batch</th><th class="text-right">Total Modal</th></tr>
+                <tr><th class="mobile-hide-col" data-sort-key="tanggal_jual">Tanggal Jual</th><th data-sort-key="nota">Nota</th><th class="mobile-hide-col" data-sort-key="pelanggan">Pelanggan</th><th class="mobile-hide-col" data-sort-key="batch_asal">Batch Asal</th><th class="text-right" data-sort-key="qty_keluar">Qty Keluar</th><th class="text-right mobile-hide-col" data-sort-key="modal_batch">Modal Batch</th><th class="text-right" data-sort-key="total_modal">Total Modal</th></tr>
             </thead>
             <tbody>
                 <?php if (empty($fifoUsage)): ?>
                     <tr><td colspan="7"><div class="empty-state"><div class="empty-icon">TX</div><h4>Belum ada transaksi penjualan</h4><p>Begitu penjualan terjadi, jejak batch FIFO yang terpakai akan terlihat di sini.</p></div></td></tr>
                 <?php else: foreach ($fifoUsage as $usage): ?>
                     <tr>
-                        <td class="text-nowrap mobile-hide-col"><?= formatDate($usage['tanggal_transaksi']) ?></td>
-                        <td>
+                        <td class="text-nowrap mobile-hide-col" data-sort-value="<?= htmlspecialchars($usage['tanggal_transaksi']) ?>"><?= formatDate($usage['tanggal_transaksi']) ?></td>
+                        <td data-sort-value="<?= htmlspecialchars($usage['nomor_transaksi']) ?>">
                             <span class="font-mono"><?= htmlspecialchars($usage['nomor_transaksi']) ?></span>
                             <div class="mobile-only-inline"><?= formatDate($usage['tanggal_transaksi']) ?> · <?= htmlspecialchars($usage['nama_toko']) ?></div>
                         </td>
                         <td class="fw-bold mobile-hide-col"><?= htmlspecialchars($usage['nama_toko']) ?></td>
-                        <td class="mobile-hide-col">Batch <?= formatDate($usage['batch_tanggal_masuk']) ?></td>
-                        <td class="text-right"><?= number_format($usage['qty_keluar']) ?> <?= htmlspecialchars($summary['satuan']) ?></td>
-                        <td class="text-right mobile-hide-col"><?= formatRupiah($usage['harga_modal_batch']) ?></td>
-                        <td class="text-right fw-bold"><?= formatRupiah($usage['total_modal_batch']) ?></td>
+                        <td class="mobile-hide-col" data-sort-value="<?= htmlspecialchars($usage['batch_tanggal_masuk']) ?>">Batch <?= formatDate($usage['batch_tanggal_masuk']) ?></td>
+                        <td class="text-right" data-sort-value="<?= (float)$usage['qty_keluar'] ?>"><?= number_format($usage['qty_keluar']) ?> <?= htmlspecialchars($summary['satuan']) ?></td>
+                        <td class="text-right mobile-hide-col" data-sort-value="<?= (float)$usage['harga_modal_batch'] ?>"><?= formatRupiah($usage['harga_modal_batch']) ?></td>
+                        <td class="text-right fw-bold" data-sort-value="<?= (float)$usage['total_modal_batch'] ?>"><?= formatRupiah($usage['total_modal_batch']) ?></td>
                     </tr>
                 <?php endforeach; endif; ?>
             </tbody>

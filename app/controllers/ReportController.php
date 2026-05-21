@@ -43,40 +43,6 @@ class ReportController {
             $grouping = 'day';
         }
 
-        $stockSupplierId = (int)get('supplier_id');
-        if ($stockSupplierId <= 0) {
-            $stockSupplierId = null;
-        }
-
-        $stockStatus = trim((string)get('stock_status', ''));
-        if (!in_array($stockStatus, ['utuh', 'sebagian', 'habis'], true)) {
-            $stockStatus = '';
-        }
-
-        $stockDateFrom = trim((string)get('stock_date_from', ''));
-        $stockDateTo = trim((string)get('stock_date_to', ''));
-
-        $saleCustomerId = (int)get('customer_id');
-        if ($saleCustomerId <= 0) {
-            $saleCustomerId = null;
-        }
-
-        $saleDateFrom = trim((string)get('sale_date_from', ''));
-        $saleDateTo = trim((string)get('sale_date_to', ''));
-
-        $stockFilters = [
-            'supplier_id' => $stockSupplierId,
-            'status' => $stockStatus,
-            'date_from' => $stockDateFrom,
-            'date_to' => $stockDateTo,
-        ];
-
-        $usageFilters = [
-            'customer_id' => $saleCustomerId,
-            'date_from' => $saleDateFrom,
-            'date_to' => $saleDateTo,
-        ];
-
         $summary = $this->model->getProductStockSummary($productId);
         if (!$summary) {
             setFlash('error', 'Barang tidak ditemukan.');
@@ -85,14 +51,10 @@ class ReportController {
         }
 
         $activeBatches = $this->model->getProductActiveBatches($productId);
-        $stockHistory = $this->model->getProductStockHistory($productId, $stockFilters);
+        $stockHistory = $this->model->getProductStockHistory($productId);
         $priceHistory = $this->model->getProductPriceHistory($productId);
         $priceChart = $this->model->getProductPriceChart($productId, $grouping);
-        $fifoUsage = $this->model->getProductFifoUsage($productId, $usageFilters);
-
-        $customerModel = new Customer();
-        $suppliers = $customerModel->getAll('', 1, 1000, ['type' => 'supplier']);
-        $customers = $customerModel->getAll('', 1, 1000, ['type' => 'customer']);
+        $fifoUsage = $this->model->getProductFifoUsage($productId);
 
         $priceChange = 0;
         $priceChangePercent = 0;
